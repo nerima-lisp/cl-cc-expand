@@ -14,7 +14,6 @@
 ;;;; type is signaled — this shim preserves that (correct) behavior rather
 ;;;; than the older always-passes bug documented for some earlier
 ;;;; extractions.
-
 (defpackage :cl-cc-expand/test
   (:use :cl :cl-weave)
   (:shadowing-import-from :cl-weave #:describe)
@@ -38,9 +37,9 @@
 (in-package :cl-cc-expand/test)
 
 ;;; ── test definition shims ────────────────────────────────────────────────
-
 (defun %test-name (designator)
-  (if (stringp designator) designator (string-downcase (string designator))))
+  (if (stringp designator) designator
+    (string-downcase (string designator))))
 
 (defmacro deftest (name &body body)
   "Monorepo deftest -> a single cl-weave sequential test. A leading string
@@ -56,17 +55,18 @@ Syntax: (deftest-each name [docstring] :cases ((label val ...) ...) (var ...) bo
     (setf args (rest args)))
   (let* ((cases-pos (position :cases args))
          (cases (nth (1+ cases-pos) args))
-         (tail  (nthcdr (+ 2 cases-pos) args))
-         (vars  (first tail))
-         (body  (rest tail)))
+         (tail (nthcdr (+ 2 cases-pos) args))
+         (vars (first tail))
+         (body (rest tail)))
     `(progn
-       ,@(loop for case in cases
-               for label = (first case)
-               for vals  = (rest case)
-               collect `(it-sequential ,(format nil "~A ~A" (%test-name base-name) label)
-                          (destructuring-bind ,vars (list ,@vals)
-                            (declare (ignorable ,@vars))
-                            ,@body))))))
+      ,@(loop for case in cases
+            for label = (first case)
+            for vals = (rest case)
+            collect `(it-sequential
+          ,(format nil "~A ~A" (%test-name base-name) label)
+          (destructuring-bind ,vars (list ,@vals)
+            (declare (ignorable ,@vars))
+            ,@body))))))
 
 (defmacro in-suite (&rest ignored)
   "Suites are a monorepo concept; cl-weave groups by describe. No-op here."
@@ -84,30 +84,60 @@ The suite argument is ignored; the hook applies to the flat test set."
   (declare (ignore suites))
   (ecase kind
     (:each `(before-each ,@body))
-    (:all  `(before-all ,@body))))
+    (:all `(before-all ,@body))))
 
 ;;; ── assertion shims (map onto cl-weave expect) ───────────────────────────
+(defmacro assert-true (form &rest _)
+  (declare (ignore _))
+  `(expect ,form :to-be-truthy))
 
-(defmacro assert-true (form &rest _)       (declare (ignore _)) `(expect ,form :to-be-truthy))
-(defmacro assert-false (form &rest _)      (declare (ignore _)) `(expect ,form :to-be-falsy))
-(defmacro assert-null (form &rest _)       (declare (ignore _)) `(expect ,form :to-be-null))
-(defmacro assert-eq (expected actual &rest _)     (declare (ignore _)) `(expect ,actual :to-be ,expected))
-(defmacro assert-eql (expected actual &rest _)    (declare (ignore _)) `(expect ,actual :to-be ,expected))
-(defmacro assert-= (expected actual &rest _)      (declare (ignore _)) `(expect ,actual :to-equal ,expected))
-(defmacro assert-equal (expected actual &rest _)  (declare (ignore _)) `(expect ,actual :to-equal ,expected))
-(defmacro assert-equalp (expected actual &rest _) (declare (ignore _)) `(expect ,actual :to-equalp ,expected))
-(defmacro assert-string= (expected actual &rest _) (declare (ignore _)) `(expect ,actual :to-equal ,expected))
+(defmacro assert-false (form &rest _)
+  (declare (ignore _))
+  `(expect ,form :to-be-falsy))
 
-(defmacro assert-signals (condition-type form)
-  "Assert that form signals a condition of condition-type. Matches the
+(defmacro assert-null (form &rest _)
+  (declare (ignore _))
+  `(expect ,form :to-be-null))
+
+(defmacro assert-eq (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-be ,expected))
+
+(defmacro assert-eql (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-be ,expected))
+
+(defmacro assert-= (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-equal ,expected))
+
+(defmacro assert-equal (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-equal ,expected))
+
+(defmacro assert-equalp (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-equalp ,expected))
+
+(defmacro assert-string= (expected actual &rest _)
+  (declare (ignore _))
+  `(expect ,actual :to-equal ,expected))
+
+(progn
+  (defmacro assert-signals (condition-type form)
+    "Assert that form signals a condition of condition-type. Matches the
 monorepo framework's own (already-correct) semantics: fails if nothing is
 signaled, and fails if the wrong condition type is signaled."
-  `(handler-case
-       (progn
-         ,form
-         (fail "assert-signals: expected ~S to be signaled, but no condition was raised"
-               ',condition-type))
-     (,condition-type () t)
-     (error (c)
-       (fail "assert-signals: expected ~S but got ~S: ~A"
-             ',condition-type (type-of c) c))))
+    `(handler-case (progn
+        ,form
+        (fail
+          "assert-signals: expected ~S to be signaled, but no condition was raised"
+          ',condition-type))
+      (,condition-type ()
+        t)
+      (error (c)
+        (fail
+          "assert-signals: expected ~S but got ~S: ~A"
+          ',condition-type
+          (type-of c)
+          c)))))

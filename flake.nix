@@ -69,6 +69,13 @@
       url = "github:nerima-lisp/cl-process-kit/v1.0.0";
       flake = false;
     };
+    # cl-process-kit v1.0.0 also depends on cl-boundary-kit.  Keep this
+    # source input separate so its ASDF registry entry is available while
+    # compiling cl-process-kit itself, not only its downstream consumers.
+    cl-boundary-kit = {
+      url = "github:nerima-lisp/cl-boundary-kit/v0.6.0";
+      flake = false;
+    };
     cl-json-kit = {
       url = "github:nerima-lisp/cl-json-kit/v1.0.0";
       flake = false;
@@ -144,6 +151,7 @@
       cl-cc-runtime,
       cl-log-kit,
       cl-process-kit,
+      cl-boundary-kit,
       cl-json-kit,
       cl-regex-kit,
       cl-parser-kit,
@@ -195,74 +203,108 @@
         license = lib.licenses.mit;
       };
 
-      # `lispDependencies` is what `packages.cl-cc-expand` itself needs to
-      # load (cl-cc-expand.asd's `:depends-on ("cl-cc-bootstrap" "cl-cc-type"
-      # "cl-cc-vm")`, PLUS the full transitive closure each of those three
-      # pulls in -- `lispDerivation` packages a raw source tree for ASDF's
-      # own dependency resolution rather than resolving transitively itself,
-      # so every sibling on the path has to be listed here explicitly, the
-      # same shape cl-cc-vm's own (hand-rolled, pre-preset) flake.nix uses
-      # for this exact chain). `lispCheckDependencies` is what only the
-      # `/test` system needs (cl-weave), so it stays off the library's own
-      # registry and reaches the check derivation and the generated devShell
-      # only.
-      lispDependencies = ctx: [
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-cc-bootstrap";
-          version = ctx.cl.fromAsdSystem (cl-cc-bootstrap + "/cl-cc-bootstrap.asd");
-          src = cl-cc-bootstrap;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-cc-ast";
-          version = ctx.cl.fromAsdSystem (cl-cc-ast + "/cl-cc-ast.asd");
-          src = cl-cc-ast;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-cc-type";
-          version = ctx.cl.fromAsdSystem (cl-cc-type + "/cl-cc-type.asd");
-          src = cl-cc-type;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-log-kit";
-          version = ctx.cl.fromAsdSystem (cl-log-kit + "/cl-log-kit.asd");
-          src = cl-log-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-process-kit";
-          version = ctx.cl.fromAsdSystem (cl-process-kit + "/cl-process-kit.asd");
-          src = cl-process-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-json-kit";
-          version = ctx.cl.fromAsdSystem (cl-json-kit + "/cl-json-kit.asd");
-          src = cl-json-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-cc-runtime";
-          version = ctx.cl.fromAsdSystem (cl-cc-runtime + "/cl-cc-runtime.asd");
-          src = cl-cc-runtime;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-parser-kit";
-          version = ctx.cl.fromAsdSystem (cl-parser-kit + "/cl-parser-kit.asd");
-          src = cl-parser-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-regex-kit";
-          version = ctx.cl.fromAsdSystem (cl-regex-kit + "/cl-regex-kit.asd");
-          src = cl-regex-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-tty-kit";
-          version = ctx.cl.fromAsdSystem (cl-tty-kit + "/cl-tty-kit.asd");
-          src = cl-tty-kit;
-        })
-        (ctx.cl.lispDerivation {
-          lispSystem = "cl-cc-vm";
-          version = ctx.cl.fromAsdSystem (cl-cc-vm + "/cl-cc-vm.asd");
-          src = cl-cc-vm;
-        })
-      ];
+      # Every raw source derivation carries the dependencies required to
+      # compile that source.  Listing only the final transitive closure here
+      # made cl-cc-runtime build without cl-log-kit in its ASDF registry.
+      lispDependencies =
+        ctx:
+        let
+          mkDependency =
+            {
+              lispSystem,
+              source,
+              asd,
+              lispDependencies ? [ ],
+            }:
+            ctx.cl.lispDerivation {
+              inherit lispSystem lispDependencies;
+              version = ctx.cl.fromAsdSystem (source + asd);
+              src = source;
+            };
+          bootstrap = mkDependency {
+            lispSystem = "cl-cc-bootstrap";
+            source = cl-cc-bootstrap;
+            asd = "/cl-cc-bootstrap.asd";
+          };
+          ast = mkDependency {
+            lispSystem = "cl-cc-ast";
+            source = cl-cc-ast;
+            asd = "/cl-cc-ast.asd";
+          };
+          type = mkDependency {
+            lispSystem = "cl-cc-type";
+            source = cl-cc-type;
+            asd = "/cl-cc-type.asd";
+            lispDependencies = [ ast ];
+          };
+          logKit = mkDependency {
+            lispSystem = "cl-log-kit";
+            source = cl-log-kit;
+            asd = "/cl-log-kit.asd";
+          };
+          boundaryKit = mkDependency {
+            lispSystem = "cl-boundary-kit";
+            source = cl-boundary-kit;
+            asd = "/cl-boundary-kit.asd";
+            lispDependencies = [ logKit ];
+          };
+          processKit = mkDependency {
+            lispSystem = "cl-process-kit";
+            source = cl-process-kit;
+            asd = "/cl-process-kit.asd";
+            lispDependencies = [
+              boundaryKit
+              logKit
+            ];
+          };
+          jsonKit = mkDependency {
+            lispSystem = "cl-json-kit";
+            source = cl-json-kit;
+            asd = "/cl-json-kit.asd";
+          };
+          runtime = mkDependency {
+            lispSystem = "cl-cc-runtime";
+            source = cl-cc-runtime;
+            asd = "/cl-cc-runtime.asd";
+            lispDependencies = [
+              logKit
+              processKit
+              jsonKit
+            ];
+          };
+          parserKit = mkDependency {
+            lispSystem = "cl-parser-kit";
+            source = cl-parser-kit;
+            asd = "/cl-parser-kit.asd";
+          };
+          regexKit = mkDependency {
+            lispSystem = "cl-regex-kit";
+            source = cl-regex-kit;
+            asd = "/cl-regex-kit.asd";
+            lispDependencies = [ parserKit ];
+          };
+          ttyKit = mkDependency {
+            lispSystem = "cl-tty-kit";
+            source = cl-tty-kit;
+            asd = "/cl-tty-kit.asd";
+          };
+          vm = mkDependency {
+            lispSystem = "cl-cc-vm";
+            source = cl-cc-vm;
+            asd = "/cl-cc-vm.asd";
+            lispDependencies = [
+              bootstrap
+              runtime
+              regexKit
+              ttyKit
+            ];
+          };
+        in
+        [
+          bootstrap
+          type
+          vm
+        ];
       lispCheckDependencies = ctx: [
         (ctx.cl.lispDerivation {
           lispSystem = "cl-weave";
