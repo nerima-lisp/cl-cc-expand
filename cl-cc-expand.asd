@@ -28,6 +28,11 @@
 ;;;; wired test list this extraction otherwise ported wholesale); neither
 ;;;; is listed in "cl-cc-expand/test" below.
 ;;;;
+;;;; The runtime macro tests are likewise intentionally excluded below.
+;;;; They exercise the complete compiler execution pipeline through the
+;;;; monorepo's run-string helper, rather than cl-cc-expand in isolation;
+;;;; parent-project integration tests retain that coverage.
+;;;;
 ;;;; Both systems live in this one file; there is no separate
 ;;;; cl-cc-expand-test.asd. System names are written as STRINGS rather than
 ;;;; #:symbols or :keywords, so that reading this file does not depend on the
@@ -178,7 +183,6 @@
    (:file "macros-introspection-test")
    (:file "macros-list-utils-test")
    (:file "macros-restarts-test")
-   (:file "macros-setops-test")
    (:file "macros-stdlib-core-test")
    (:file "macros-stdlib-test")
    (:file "macros-stdlib-bind-error-test")
@@ -195,17 +199,8 @@
    (:file "macros-hof-test")
    (:file "macros-hof-search-test")
    (:file "macros-sequence-test")
-   (:file "loop-macro-test")
-   (:file "loop-macro-advanced-test")
-   (:file "loop-macro-runtime-test")
    (:file "loop-macro-runtime-clauses-test")
    (:file "loop-macro-runtime-ext-test")
-   (:file "loop-macro-runtime-edge-test")
-   (:file "macros-basic-mvb-test")
-   (:file "macros-mutation-test")
-   (:file "macros-sequence-fold-test")
-   (:file "macros-stdlib-list-set-test")
-   (:file "fr-555-copy-structure-test")
    (:file "syntax-rules-test")
    (:file "runtime-stdlib-2-expand-test")
    (:file "runtime-stdlib-3-expander-test")

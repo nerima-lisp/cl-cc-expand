@@ -1,4 +1,5 @@
 (in-package :cl-cc/expand)
+
 ;;; ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ;;; Expander — Logic Layer
 ;;;
@@ -10,35 +11,38 @@
 ;;; Each (define-expander-for HEAD (form) body...) adds one clause.
 ;;; compiler-macroexpand-all is the inference engine — ~15 lines.
 ;;; ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ;;; ── Registration macro ───────────────────────────────────────────────────
-
 (defmacro define-expander-for (head (form) &body body)
   "Register a handler in *expander-head-table* for forms whose head is HEAD.
 Contract: handler receives the full form and returns a fully-expanded form."
-  (list 'setf
-        (list 'gethash (list 'quote head) '*expander-head-table*)
-        (cons 'lambda (cons (list form) body))))
+  (list
+    'setf
+    (list 'gethash (list 'quote head) '*expander-head-table*)
+    (cons 'lambda (cons (list form) body))))
 
 ;;; ── Expander handler registrations ──────────────────────────────────────
 ;;;
 ;;; Each (define-expander-for HEAD ...) corresponds to one clause in the
 ;;; Prolog sense: head(Form) :- body(Form).  The inference engine
 ;;; (compiler-macroexpand-all) queries this database by head symbol.
-
-(define-expander-for defmethod (form)
+(define-expander-for
+  defmethod
+  (form)
   "Expand only DEFMETHOD body forms, preserving qualifier metadata verbatim."
   (let* ((name (second form))
          (tail (cddr form))
          (head (first tail))
          (has-qualifier (and head (symbolp head) (not (listp head))))
          (qualifier (and has-qualifier head))
-         (lambda-list (if has-qualifier (second tail) head))
-         (body (if has-qualifier (cddr tail) (cdr tail)))
+         (lambda-list
+        (if has-qualifier (second tail)
+          head))
+         (body
+        (if has-qualifier (cddr tail)
+          (cdr tail)))
          (expanded-body (mapcar #'compiler-macroexpand-all body)))
-    (if has-qualifier
-        (append (list 'defmethod name qualifier lambda-list) expanded-body)
-        (append (list 'defmethod name lambda-list) expanded-body))))
+    (if has-qualifier (append (list 'defmethod name qualifier lambda-list) expanded-body)
+      (append (list 'defmethod name lambda-list) expanded-body))))
 
 (defun %expander-werror-enabled-p ()
   (let* ((pkg (find-package :cl-cc/parse))
@@ -47,9 +51,8 @@ Contract: handler receives the full form and returns a fully-expanded form."
 
 (defun %warn-unknown-pragma (name)
   (let ((message (format nil "Unknown pragma ~S" name)))
-    (if (%expander-werror-enabled-p)
-        (error "~A" message)
-        (warn "~A" message))))
+    (if (%expander-werror-enabled-p) (error "~A" message)
+      (warn "~A" message))))
 
 (defun %expand-compiler-macro-call (name form)
   "Return a compiler-macro expansion for NAME/FORM when it changes FORM."
@@ -59,7 +62,9 @@ Contract: handler receives the full form and returns a fully-expanded form."
         (unless (equal expanded form)
           expanded)))))
 
-(define-expander-for pragma (form)
+(define-expander-for
+  pragma
+  (form)
   "Consume compiler pragma forms. Unknown pragmas warn unless -Werror is active."
   (let ((name (second form)))
     (unless (member name '(optimize diagnostic push pop) :test #'eq)
@@ -70,7 +75,6 @@ Contract: handler receives the full form and returns a fully-expanded form."
 ;;;
 ;;; The inference engine: 4 clauses, ~15 lines.
 ;;; Handlers in *expander-head-table* take priority over *compiler-special-forms*.
-
 (defun compiler-macroexpand-all (form)
   "Expand macros in FORM for the compiler pipeline.
 Dispatch order: (1) atoms — symbol macros expanded, others pass through;
@@ -90,14 +94,7 @@ Dispatch order: (1) atoms — symbol macros expanded, others pass through;
           (member (car form) *compiler-local-function-names* :test #'eq))
      (cons (car form) (mapcar #'compiler-macroexpand-all (cdr form))))
     (t
-     (let ((handler (or (gethash (car form) *expander-head-table*)
-                          (and (symbolp (car form))
-                               (let* ((pkg (find-package :cl-cc/expand))
-                                      (local (progn
-                                               (when (cl-cc/vm::package-locked-p pkg)
-                                                 (cl-cc/vm::check-package-lock pkg :intern))
-                                               (intern (symbol-name (car form)) pkg))))
-                                 (and local (gethash local *expander-head-table*))))))
+     (let ((handler (or (gethash (car form) *expander-head-table*) (and (symbolp (car form)) (let* ((pkg (find-package :cl-cc/expand)) (local (progn (when (cl-cc/vm::vm-package-locked-p pkg) (cl-cc/vm::check-package-lock pkg :intern)) (intern (symbol-name (car form)) pkg)))) (and local (gethash local *expander-head-table*))))))
            (compiler-macro-expansion nil))
        (cond
          (handler

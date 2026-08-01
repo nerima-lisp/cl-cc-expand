@@ -111,10 +111,4 @@ signaled, and fails if the wrong condition type is signaled."
        (,condition-type () t)
        (error (c)
          (fail "assert-signals: expected ~S but got ~S: ~A"
-               ',condition-type (type-of c) c))))
-
-  (defun run-string (source &key stdlib)
-    "Evaluate SOURCE with cl-cc/expand's macro bindings."
-    (declare (ignore stdlib))
-    (let ((*package* (find-package :cl-cc/expand)))
-      (eval (read-from-string source)))))
+               ',condition-type (type-of c) c)))))
