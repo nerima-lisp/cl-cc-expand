@@ -20,9 +20,12 @@ Supported options:
   (let* ((model       (%defstruct-build-model form))
          (name        (getf model :name))
          (all-slots   (getf model :all-slots))
-         (struct-type (getf model :struct-type)))
+         (struct-type (getf model :struct-type))
+         (pred-name   (getf model :pred-name)))
     (setf (gethash name *defstruct-slot-registry*) all-slots)
     (setf (gethash name *defstruct-type-registry*) struct-type)
+    (when pred-name
+      (setf (gethash pred-name *defstruct-predicate-registry*) name))
     (if struct-type
         (%defstruct-typed-expansion model)
         (%defstruct-clos-expansion model))))

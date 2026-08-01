@@ -17,6 +17,7 @@
      #:*defstruct-read-only-accessor-map*
      #:*defstruct-slot-registry*
      #:*defstruct-type-registry*
+     #:*defstruct-predicate-registry*
      #:*setf-compound-place-handlers*
       #:*declaim-inline-registry*
      #:*declaim-optimize-registry*

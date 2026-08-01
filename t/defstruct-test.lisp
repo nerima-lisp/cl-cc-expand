@@ -83,6 +83,20 @@
       (assert-equal (intern "POINT-P") (second pred)))))
 
 (deftest
+  ds-predicate-registry-records-generated-predicates
+  "DEFSTRUCT records default and custom predicate names, but not disabled ones."
+  (cl-cc/expand:with-fresh-defstruct-registries
+    (ds-expand '(defstruct point x))
+    (ds-expand '(defstruct (segment (:predicate segment-node-p)) x))
+    (ds-expand '(defstruct (hidden (:predicate nil)) x))
+    (assert-equal 'point
+                  (gethash 'point-p cl-cc/expand:*defstruct-predicate-registry*))
+    (assert-equal 'segment
+                  (gethash 'segment-node-p cl-cc/expand:*defstruct-predicate-registry*))
+    (assert-true
+      (null (gethash 'hidden-p cl-cc/expand:*defstruct-predicate-registry*)))))
+
+(deftest
   ds-basic-expansion-ends-with-quoted-name
   "Basic defstruct ends the PROGN with the quoted struct name for reflection."
   (cl-cc/expand:with-fresh-defstruct-registries
