@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "cl-boundary-kit": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784980104,
+        "narHash": "sha256-TVaLVsz0/Sqp3Xlfzimbk31dEAupPyXtvVOG/+ER2co=",
+        "owner": "nerima-lisp",
+        "repo": "cl-boundary-kit",
+        "rev": "472a38dfbd33792587b2b1f652c53256a189029f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nerima-lisp",
+        "ref": "v0.6.0",
+        "repo": "cl-boundary-kit",
+        "type": "github"
+      }
+    },
     "cl-cc-ast": {
       "flake": false,
       "locked": {
@@ -283,6 +300,7 @@
     },
     "root": {
       "inputs": {
+        "cl-boundary-kit": "cl-boundary-kit",
         "cl-cc-ast": "cl-cc-ast",
         "cl-cc-bootstrap": "cl-cc-bootstrap",
         "cl-cc-runtime": "cl-cc-runtime",
