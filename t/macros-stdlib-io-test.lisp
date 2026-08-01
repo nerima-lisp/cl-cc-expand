@@ -59,7 +59,7 @@
 
 (deftest load-time-value-expands-to-quote "LOAD-TIME-VALUE evaluates its form during expansion and quotes the value." (let ((result (our-macroexpand-1 '(load-time-value (+ 1 2))))) (assert-eq 'quote (car result)) (assert-= 3 (second result))))
 
-(deftest load-time-value-is-memoized-during-expansion "LOAD-TIME-VALUE evaluates identical forms once per compiler session." (let ((*load-time-value-hit* 0)) (let* ((form '(load-time-value (progn (incf *load-time-value-hit*) *load-time-value-hit*))) (first (our-macroexpand-1 form))) (cl-cc/expand::%clear-macroexpand-caches) (let ((second (our-macroexpand-1 form))) (assert-eq 'quote (car first)) (assert-eq 'quote (car second)) (assert-= 1 (second first)) (assert-= 1 (second second)) (assert-= 1 *load-time-value-hit*)))))
+(deftest load-time-value-is-memoized-during-expansion "LOAD-TIME-VALUE evaluates identical forms once per compiler session." (let ((*load-time-value-hit* 0)) (let* ((form '(load-time-value (progn (incf *load-time-value-hit*) *load-time-value-hit*))) (first (our-macroexpand-1 form))) (clrhash cl-cc/expand:*macroexpand-step-cache*) (let ((second (our-macroexpand-1 form))) (assert-eq 'quote (car first)) (assert-eq 'quote (car second)) (assert-= 1 (second first)) (assert-= 1 (second second)) (assert-= 1 *load-time-value-hit*)))))
 
 (deftest-each
   provide-require-expansion-structure
