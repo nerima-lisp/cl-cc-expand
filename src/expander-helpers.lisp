@@ -7,6 +7,7 @@ Prevents concurrent tests from mutating shared global hash tables."
          (*defstruct-read-only-accessor-map* (make-hash-table :test #'eq))
          (*defstruct-slot-registry*  (make-hash-table :test #'eq))
          (*defstruct-type-registry*  (make-hash-table :test #'eq))
+         (*defstruct-predicate-registry* (make-hash-table :test #'eq))
          (*declaim-inline-registry*  (make-hash-table :test #'eq))
          (*declaim-optimize-registry* (make-hash-table :test #'eq)))
      ,@body))

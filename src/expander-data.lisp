@@ -22,6 +22,9 @@ When accessor is present, `(setf (accessor obj) ...)` is rejected at expansion."
 (defvar *defstruct-type-registry* (make-hash-table :test #'eq)
   "Maps struct name to its defstruct representation type: NIL, LIST, or VECTOR.")
 
+(defvar *defstruct-predicate-registry* (make-hash-table :test #'eq)
+  "Maps generated defstruct predicate names to their struct names.")
+
 (defvar *declaim-inline-registry* (make-hash-table :test #'eq)
   "Maps function names to global inline policy keywords (:INLINE or :NOTINLINE).
 Used by `(declaim (inline ...))` / `(declaim (notinline ...))` during source compilation.")
