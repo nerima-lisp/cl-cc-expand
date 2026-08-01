@@ -17,7 +17,10 @@ monorepo) found that `cl-cc/expand`'s own ASDF dependencies
 ([`cl-cc-bootstrap`](https://github.com/nerima-lisp/cl-cc-bootstrap),
 [`cl-cc-type`](https://github.com/nerima-lisp/cl-cc-type),
 [`cl-cc-vm`](https://github.com/nerima-lisp/cl-cc-vm)) were all already
-external, making `expand` a clean leaf dependency-wise. Three files
+external, making `expand` a clean leaf dependency-wise. A fourth,
+[`cl-host-kit`](https://github.com/nerima-lisp/cl-host-kit), was added by the
+2026-08-01 org-wide `uiop`->`cl-host-kit` migration; it supplies the single
+`host-kit:getenv` call that reads `$CLCC_TARGET_BACKEND`. Three files
 *outside* `packages/expand` reached into `cl-cc/expand::` internal
 (non-exported) symbols directly: `packages/selfhost`'s host-bridge
 registration table, `packages/stdlib`'s self-hosted `PROCLAIM` source
