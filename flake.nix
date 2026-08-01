@@ -206,7 +206,8 @@
       # Every raw source derivation carries the dependencies required to
       # compile that source.  Listing only the final transitive closure here
       # made cl-cc-runtime build without cl-log-kit in its ASDF registry.
-      lispDependencies = ctx:
+      lispDependencies =
+        ctx:
         let
           mkDependency =
             {
@@ -251,7 +252,10 @@
             lispSystem = "cl-process-kit";
             source = cl-process-kit;
             asd = "/cl-process-kit.asd";
-            lispDependencies = [ boundaryKit logKit ];
+            lispDependencies = [
+              boundaryKit
+              logKit
+            ];
           };
           jsonKit = mkDependency {
             lispSystem = "cl-json-kit";
@@ -262,7 +266,11 @@
             lispSystem = "cl-cc-runtime";
             source = cl-cc-runtime;
             asd = "/cl-cc-runtime.asd";
-            lispDependencies = [ logKit processKit jsonKit ];
+            lispDependencies = [
+              logKit
+              processKit
+              jsonKit
+            ];
           };
           parserKit = mkDependency {
             lispSystem = "cl-parser-kit";
@@ -284,10 +292,19 @@
             lispSystem = "cl-cc-vm";
             source = cl-cc-vm;
             asd = "/cl-cc-vm.asd";
-            lispDependencies = [ bootstrap runtime regexKit ttyKit ];
+            lispDependencies = [
+              bootstrap
+              runtime
+              regexKit
+              ttyKit
+            ];
           };
         in
-        [ bootstrap type vm ];
+        [
+          bootstrap
+          type
+          vm
+        ];
       lispCheckDependencies = ctx: [
         (ctx.cl.lispDerivation {
           lispSystem = "cl-weave";
