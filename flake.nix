@@ -105,6 +105,12 @@
       flake = false;
     };
 
+    # Direct dependency for HOST-KIT:GETENV in src/macros-stdlib.lisp.
+    cl-host-kit = {
+      url = "github:nerima-lisp/cl-host-kit/v0.2.1";
+      flake = false;
+    };
+
     # Test-only: cl-weave is the org's test framework. Pinned to its release
     # tag, which is what every other repository in the org references.
     cl-weave = {
@@ -157,6 +163,7 @@
       cl-parser-kit,
       cl-tty-kit,
       cl-cc-vm,
+      cl-host-kit,
       cl-weave,
       cl-nix-forge,
       paredit-cli,
@@ -299,11 +306,17 @@
               ttyKit
             ];
           };
+          hostKit = mkDependency {
+            lispSystem = "cl-host-kit";
+            source = cl-host-kit;
+            asd = "/cl-host-kit.asd";
+          };
         in
         [
           bootstrap
           type
           vm
+          hostKit
         ];
       lispCheckDependencies = ctx: [
         (ctx.cl.lispDerivation {

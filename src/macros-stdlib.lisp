@@ -70,7 +70,7 @@ Recognized Wasm values are :WASM, :WASM32, :WASM64, :WASM32-WASI, and
       (%target-backend-symbol-value :cl-cc/compile "*TARGET-BACKEND*")
       (%target-backend-symbol-value :cl-cc/codegen "*TARGET-BACKEND*")
       (%target-backend-symbol-value :cl-cc/emit "*TARGET-BACKEND*")
-      (let ((env (uiop:getenv "CLCC_TARGET_BACKEND")))
+      (let ((env (host-kit:getenv "CLCC_TARGET_BACKEND")))
         (when (and env (plusp (length env)))
           (intern (string-upcase env) :keyword)))))
 

@@ -48,7 +48,13 @@
   :homepage "https://github.com/nerima-lisp/cl-cc-expand"
   :bug-tracker "https://github.com/nerima-lisp/cl-cc-expand/issues"
   :source-control (:git "https://github.com/nerima-lisp/cl-cc-expand.git")
-  :depends-on ("cl-cc-bootstrap" "cl-cc-type" "cl-cc-vm")
+  ;; cl-host-kit supplies the one host operation this system performs:
+  ;; HOST-KIT:GETENV, read by %CURRENT-TARGET-BACKEND in
+  ;; src/macros-stdlib.lisp for the CLCC_TARGET_BACKEND override. It replaces
+  ;; a UIOP:GETENV call that was never declared here at all (UIOP happened to
+  ;; be present because ASDF ships it), so this line also closes an
+  ;; undeclared-dependency gap rather than only swapping one name for another.
+  :depends-on ("cl-cc-bootstrap" "cl-cc-type" "cl-cc-vm" "cl-host-kit")
   :pathname "src"
   :serial t
   :components
