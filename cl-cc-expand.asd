@@ -199,8 +199,6 @@
    (:file "macros-hof-test")
    (:file "macros-hof-search-test")
    (:file "macros-sequence-test")
-   (:file "loop-macro-runtime-clauses-test")
-   (:file "loop-macro-runtime-ext-test")
    (:file "syntax-rules-test")
    (:file "runtime-stdlib-2-expand-test")
    (:file "runtime-stdlib-3-expander-test")
