@@ -98,16 +98,23 @@ The suite argument is ignored; the hook applies to the flat test set."
 (defmacro assert-equalp (expected actual &rest _) (declare (ignore _)) `(expect ,actual :to-equalp ,expected))
 (defmacro assert-string= (expected actual &rest _) (declare (ignore _)) `(expect ,actual :to-equal ,expected))
 
-(defmacro assert-signals (condition-type form)
-  "Assert that form signals a condition of condition-type. Matches the
+(progn
+  (defmacro assert-signals (condition-type form)
+    "Assert that form signals a condition of condition-type. Matches the
 monorepo framework's own (already-correct) semantics: fails if nothing is
 signaled, and fails if the wrong condition type is signaled."
-  `(handler-case
-       (progn
-         ,form
-         (fail "assert-signals: expected ~S to be signaled, but no condition was raised"
-               ',condition-type))
-     (,condition-type () t)
-     (error (c)
-       (fail "assert-signals: expected ~S but got ~S: ~A"
-             ',condition-type (type-of c) c))))
+    `(handler-case
+         (progn
+           ,form
+           (fail "assert-signals: expected ~S to be signaled, but no condition was raised"
+                 ',condition-type))
+       (,condition-type () t)
+       (error (c)
+         (fail "assert-signals: expected ~S but got ~S: ~A"
+               ',condition-type (type-of c) c))))
+
+  (defun run-string (source &key stdlib)
+    "Evaluate SOURCE with cl-cc/expand's macro bindings."
+    (declare (ignore stdlib))
+    (let ((*package* (find-package :cl-cc/expand)))
+      (eval (read-from-string source)))))
