@@ -13,13 +13,13 @@
   "DEFINE-MODIFY-MACRO generated macro takes PLACE as first parameter"
   (let* ((result (our-macroexpand-1 '(define-modify-macro my-push (item) cons)))
          (params (caddr result)))
-    (assert-eq (car result) 'cl-cc:our-defmacro)
+    (assert-eq (car result) 'cl-cc/expand:our-defmacro)
     (assert-= (length params) 2)))
 
 (deftest define-modify-macro-no-extra-args
   "DEFINE-MODIFY-MACRO with empty lambda list still generates a valid macro"
   (let ((result (our-macroexpand-1 '(define-modify-macro toggle-flag () not))))
-    (assert-eq (car result) 'cl-cc:our-defmacro)
+    (assert-eq (car result) 'cl-cc/expand:our-defmacro)
     (assert-eq (cadr result) 'toggle-flag)
     (assert-= (length (caddr result)) 1)))
 
@@ -36,12 +36,12 @@
           ("docstring" 'my-mul  '(define-modify-macro my-mul (factor) * "Multiply.")))
   (expected-name form)
   (let ((result (our-macroexpand-1 form)))
-    (assert-eq 'cl-cc:our-defmacro (car result))
+    (assert-eq 'cl-cc/expand:our-defmacro (car result))
     (assert-eq expected-name (cadr result))))
 
 (deftest define-modify-macro-rest-lambda-list
   "DEFINE-MODIFY-MACRO with &rest param includes rest var in generated args form."
   (let* ((result (our-macroexpand-1 '(define-modify-macro my-append (&rest items) append)))
          (params (caddr result)))
-    (assert-eq 'cl-cc:our-defmacro (car result))
+    (assert-eq 'cl-cc/expand:our-defmacro (car result))
     (assert-true (member '&rest params))))
