@@ -274,16 +274,12 @@ Unknown or malformed optimize specs are ignored conservatively."
 
 ;;; Compile-time Evaluation
 
-(defvar *load-time-value-cache* (make-hash-table :test #'equal)
-  "Legacy compatibility cache; LOAD-TIME-VALUE expansion no longer evaluates forms.")
+(defvar *load-time-value-cache* (make-hash-table :test #'equal) "Memoizes LOAD-TIME-VALUE expansion results during compiler macroexpansion.")
 
 (defvar *macro-eval-fn*)
 
-;; Preserve LOAD-TIME-VALUE for the compiler-owned phase-correct cell path.
-(register-macro 'load-time-value
-  (lambda (call-form env)
-    (declare (ignore env))
-    (cons '%load-time-value (cdr call-form))))
+;; Evaluate LOAD-TIME-VALUE during expansion and embed a quoted cached result.
+(register-macro 'load-time-value (lambda (call-form env) (declare (ignore env)) (let ((form (second call-form)) (read-only-p (third call-form))) (declare (ignore read-only-p)) (multiple-value-bind (cached present-p) (gethash form *load-time-value-cache*) (unless present-p (setf cached (funcall *macro-eval-fn* form)) (setf (gethash form *load-time-value-cache*) cached)) (list 'quote cached)))))
 
 ;;; FR-1206: Module/feature system — *features*, *modules*, provide, require
 
