@@ -89,12 +89,14 @@
     (ds-expand '(defstruct point x))
     (ds-expand '(defstruct (segment (:predicate segment-node-p)) x))
     (ds-expand '(defstruct (hidden (:predicate nil)) x))
-    (assert-equal 'point
-                  (gethash 'point-p cl-cc/expand:*defstruct-predicate-registry*))
-    (assert-equal 'segment
-                  (gethash 'segment-node-p cl-cc/expand:*defstruct-predicate-registry*))
-    (assert-true
-      (null (gethash 'hidden-p cl-cc/expand:*defstruct-predicate-registry*)))))
+    (let ((point-p (intern "POINT-P"))
+          (hidden-p (intern "HIDDEN-P")))
+      (assert-equal 'point
+                    (gethash point-p cl-cc/expand:*defstruct-predicate-registry*))
+      (assert-equal 'segment
+                    (gethash 'segment-node-p cl-cc/expand:*defstruct-predicate-registry*))
+      (assert-true
+        (null (gethash hidden-p cl-cc/expand:*defstruct-predicate-registry*))))))
 
 (deftest
   ds-basic-expansion-ends-with-quoted-name
