@@ -62,22 +62,22 @@
     # runtime deps of its own (see cl-cc-vm's current flake.nix for that
     # later chain; irrelevant here since cl-cc-vm v0.1.0 never reaches it).
     cl-log-kit = {
-      url = "github:nerima-lisp/cl-log-kit/v1.0.0";
+      url = "github:nerima-lisp/cl-log-kit/v2.0.1";
       flake = false;
     };
     cl-process-kit = {
-      url = "github:nerima-lisp/cl-process-kit/v1.0.0";
+      url = "github:nerima-lisp/cl-process-kit/v3.1.0";
       flake = false;
     };
     # cl-process-kit v1.0.0 also depends on cl-boundary-kit.  Keep this
     # source input separate so its ASDF registry entry is available while
     # compiling cl-process-kit itself, not only its downstream consumers.
     cl-boundary-kit = {
-      url = "github:nerima-lisp/cl-boundary-kit/v0.6.0";
+      url = "github:nerima-lisp/cl-boundary-kit/v2.0.1";
       flake = false;
     };
     cl-json-kit = {
-      url = "github:nerima-lisp/cl-json-kit/v1.0.0";
+      url = "github:nerima-lisp/cl-json-kit/v1.0.2";
       flake = false;
     };
 
@@ -87,16 +87,16 @@
     # DEPENDENCY_POLICY.md's tag rule instead of carrying that same bare
     # commit forward.
     cl-regex-kit = {
-      url = "github:nerima-lisp/cl-regex-kit/v0.2.0";
+      url = "github:nerima-lisp/cl-regex-kit/v0.3.0";
       flake = false;
     };
     # cl-regex-kit's own tokenizer dependency.
     cl-parser-kit = {
-      url = "github:nerima-lisp/cl-parser-kit/v1.0.1";
+      url = "github:nerima-lisp/cl-parser-kit/v1.0.3";
       flake = false;
     };
     cl-tty-kit = {
-      url = "github:nerima-lisp/cl-tty-kit/v1.0.3";
+      url = "github:nerima-lisp/cl-tty-kit/v1.2.0";
       flake = false;
     };
 
@@ -107,14 +107,14 @@
 
     # Direct dependency for HOST-KIT:GETENV in src/macros-stdlib.lisp.
     cl-host-kit = {
-      url = "github:nerima-lisp/cl-host-kit/v0.2.1";
+      url = "github:nerima-lisp/cl-host-kit/v0.2.5";
       flake = false;
     };
 
     # Test-only: cl-weave is the org's test framework. Pinned to its release
     # tag, which is what every other repository in the org references.
     cl-weave = {
-      url = "github:nerima-lisp/cl-weave/v1.1.0";
+      url = "github:nerima-lisp/cl-weave/v1.1.4";
       flake = false;
     };
 
