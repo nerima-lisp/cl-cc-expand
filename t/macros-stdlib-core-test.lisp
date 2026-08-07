@@ -62,11 +62,19 @@
       (assert-eq 'handler-case (car result))
       (assert-true (%tree-contains-head-p 'cl-cc/expand::%wasm-js-catch result))
       (assert-true (%tree-contains-head-p 'cl-cc/expand::await result)))))
+
+;;; %CURRENT-TARGET-BACKEND's last resort is $CLCC_TARGET_BACKEND. The
+;;; uiop->cl-host-kit migration swapped the UIOP:GETENV behind it
+;;; for HOST-KIT:GETENV; both answer NIL for an unset variable, and these
+;;; cases pin that equivalence so a future reader-of-the-environment change
+;;; cannot quietly turn "unset" into "" or into a signaled error.
+
 (deftest current-target-backend-reads-env-when-set
   "$CLCC_TARGET_BACKEND supplies the backend when no special variable does."
   (let ((cl-cc/expand::*target-backend* nil))
     (host-kit:with-environment-variables (("CLCC_TARGET_BACKEND" "wasm32"))
       (assert-eq :wasm32 (cl-cc/expand::%current-target-backend)))))
+
 (deftest current-target-backend-nil-when-env-unset-or-empty
   "An unset or empty $CLCC_TARGET_BACKEND yields NIL, not a keyword or an error."
   (let ((cl-cc/expand::*target-backend* nil))
