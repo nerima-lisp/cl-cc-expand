@@ -236,7 +236,9 @@ so callers can preserve full ANSI FORMAT behavior through the runtime path."
         `(progn
            (princ (format nil ,(third form) ,@(cdddr form)))
            nil)))
-      (t form))))
+      (t
+       (cons (car form)
+             (mapcar (function compiler-macroexpand-all) (cdr form)))))))
 
 ;; make-string with keyword args — canonicalize to a simple fill loop.
 (define-expander-for make-string (form)

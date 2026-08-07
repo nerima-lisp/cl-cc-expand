@@ -107,3 +107,4 @@ that would trip the expander during recursion."
   (let ((result (cl-cc/expand:compiler-macroexpand-all
                  '(format nil "literal" extra))))
     (assert-eq 'let (car result))))
+(deftest expander-format-stream-recurses-children "Stream FORMAT preserves the runtime call while expanding nested child forms." (let* ((result (cl-cc/expand:compiler-macroexpand-all (quote (format stream "~A" (mapcar (lambda (segment) (let* ((name segment)) name)) segments))))) (printed (format nil "~S" result))) (assert-eq (quote format) (car result)) (assert-true (search "FORMAT" printed)) (assert-true (search "LET" printed)) (assert-false (search "LET*" printed))))
