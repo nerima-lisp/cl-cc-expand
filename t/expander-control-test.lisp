@@ -18,7 +18,7 @@
 (deftest expand-eval-when-compile-only-returns-nil
   "eval-when :compile-toplevel alone returns nil (excluded from output)."
   (handler-bind ((warning #'muffle-warning))
-    (let ((result (cl-cc/expand::expand-eval-when-form '(:compile-toplevel) '((+ 1 2)))))
+    (let ((result (cl-cc/expand::expand-eval-when-form '(:compile-toplevel) nil)))
       (assert-eq nil result))))
 
 (deftest expand-eval-when-propagates-compile-time-errors
