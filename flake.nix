@@ -80,10 +80,6 @@
       url = "github:nerima-lisp/cl-boundary-kit/v2.3.0";
       flake = false;
     };
-    cl-codec-kit = {
-      url = "github:nerima-lisp/cl-codec-kit/v0.6.0";
-      flake = false;
-    };
     cl-date-kit = {
       url = "github:nerima-lisp/cl-date-kit/v1.1.1";
       flake = false;
