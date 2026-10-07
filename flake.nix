@@ -92,14 +92,6 @@
       url = "github:nerima-lisp/cl-json-kit/v1.2.0";
       flake = false;
     };
-    cl-date-kit = {
-      url = "github:nerima-lisp/cl-date-kit/v0.2.0";
-      flake = false;
-    };
-    cl-concurrent-kit = {
-      url = "github:nerima-lisp/cl-concurrent-kit/v0.3.0";
-      flake = false;
-    };
 
     # cl-cc-vm v0.1.0's other two direct deps. cl-regex-kit had no tagged
     # release when cl-cc-vm's own flake.nix was last written (it pinned a
