@@ -69,6 +69,10 @@
       url = "github:nerima-lisp/cl-process-kit/v3.1.0";
       flake = false;
     };
+    cl-codec-kit = {
+      url = "github:nerima-lisp/cl-codec-kit/v0.6.0";
+      flake = false;
+    };
     # cl-process-kit v1.0.0 also depends on cl-boundary-kit.  Keep this
     # source input separate so its ASDF registry entry is available while
     # compiling cl-process-kit itself, not only its downstream consumers.
@@ -78,6 +82,14 @@
     };
     cl-json-kit = {
       url = "github:nerima-lisp/cl-json-kit/v1.0.2";
+      flake = false;
+    };
+    cl-date-kit = {
+      url = "github:nerima-lisp/cl-date-kit/v0.2.0";
+      flake = false;
+    };
+    cl-concurrent-kit = {
+      url = "github:nerima-lisp/cl-concurrent-kit/v0.3.0";
       flake = false;
     };
 
@@ -157,8 +169,11 @@
       cl-cc-runtime,
       cl-log-kit,
       cl-process-kit,
+      cl-codec-kit,
       cl-boundary-kit,
       cl-json-kit,
+      cl-date-kit,
+      cl-concurrent-kit,
       cl-regex-kit,
       cl-parser-kit,
       cl-tty-kit,
@@ -252,6 +267,22 @@
             lispSystem = "cl-log-kit";
             source = cl-log-kit;
             asd = "/cl-log-kit.asd";
+            lispDependencies = [ dateKit concurrentKit hostKit ];
+          };
+          codecKit = mkDependency {
+            lispSystem = "cl-codec-kit";
+            source = cl-codec-kit;
+            asd = "/cl-codec-kit.asd";
+          };
+          dateKit = mkDependency {
+            lispSystem = "cl-date-kit";
+            source = cl-date-kit;
+            asd = "/cl-date-kit.asd";
+          };
+          concurrentKit = mkDependency {
+            lispSystem = "cl-concurrent-kit";
+            source = cl-concurrent-kit;
+            asd = "/cl-concurrent-kit.asd";
           };
           boundaryKit = mkDependency {
             lispSystem = "cl-boundary-kit";
@@ -266,6 +297,7 @@
             lispDependencies = [
               boundaryKit
               logKit
+              codecKit
             ];
           };
           jsonKit = mkDependency {
@@ -298,6 +330,7 @@
             lispSystem = "cl-tty-kit";
             source = cl-tty-kit;
             asd = "/cl-tty-kit.asd";
+            lispDependencies = [ codecKit ];
           };
           vm = mkDependency {
             lispSystem = "cl-cc-vm";
