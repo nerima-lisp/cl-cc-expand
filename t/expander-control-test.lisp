@@ -24,9 +24,9 @@
 (deftest expand-eval-when-propagates-compile-time-errors
   "eval-when must not turn a compile-time body error into a successful expansion."
   (assert-signals error
-    (cl-cc/expand::expand-eval-when-form
-     '(:compile-toplevel)
-     '((error "injected eval-when failure")))))
+    (cl-cc/expand:compiler-macroexpand-all
+     '(eval-when (:compile-toplevel)
+        (error "injected eval-when failure")))))
 
 (deftest expand-macrolet-form-expands-local-macro
   "expand-macrolet-form makes a local macro visible in the body."
