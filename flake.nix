@@ -324,19 +324,28 @@
             lispSystem = "cl-concurrent-kit";
             source = cl-concurrent-kit;
             asd = "/cl-concurrent-kit.asd";
-            lispDependencies = [ boundaryKit dateKit ];
+            lispDependencies = [
+              boundaryKit
+              dateKit
+            ];
           };
           regexKit = mkDependency {
             lispSystem = "cl-regex-kit";
             source = cl-regex-kit;
             asd = "/cl-regex-kit.asd";
-            lispDependencies = [ parserKit concurrentKit ];
+            lispDependencies = [
+              parserKit
+              concurrentKit
+            ];
           };
           ttyKit = mkDependency {
             lispSystem = "cl-tty-kit";
             source = cl-tty-kit;
             asd = "/cl-tty-kit.asd";
-            lispDependencies = [ codecKit concurrentKit ];
+            lispDependencies = [
+              codecKit
+              concurrentKit
+            ];
           };
           vm = mkDependency {
             lispSystem = "cl-cc-vm";
