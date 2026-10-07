@@ -326,12 +326,10 @@ later siblings can immediately use the new macro."
 Evaluate BODY immediately for :compile-toplevel; include in output for :execute/:load-toplevel."
   (when (%list-contains-eq :compile-toplevel situations)
     (dolist (b body)
-      (handler-case
-          (let ((expanded (compiler-macroexpand-all b)))
-            (if (fboundp 'run-string-repl)
-                (run-string-repl (write-to-string expanded))
-                (our-eval expanded)))
-        (error () nil))))
+      (let ((expanded (compiler-macroexpand-all b)))
+        (if (fboundp 'run-string-repl)
+            (run-string-repl (write-to-string expanded))
+            (our-eval expanded)))))
   (if (or (%list-contains-eq :execute situations)
           (%list-contains-eq :load-toplevel situations))
       (compiler-macroexpand-all (cons 'progn body))

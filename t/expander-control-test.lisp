@@ -18,8 +18,15 @@
 (deftest expand-eval-when-compile-only-returns-nil
   "eval-when :compile-toplevel alone returns nil (excluded from output)."
   (handler-bind ((warning #'muffle-warning))
-    (let ((result (cl-cc/expand::expand-eval-when-form '(:compile-toplevel) '((+ 1 2)))))
+    (let ((result (cl-cc/expand::expand-eval-when-form '(:compile-toplevel) nil)))
       (assert-eq nil result))))
+
+(deftest expand-eval-when-propagates-compile-time-errors
+  "eval-when must not turn a compile-time body error into a successful expansion."
+  (assert-signals error
+    (cl-cc/expand:compiler-macroexpand-all
+     '(eval-when (:compile-toplevel)
+        (error "injected eval-when failure")))))
 
 (deftest expand-macrolet-form-expands-local-macro
   "expand-macrolet-form makes a local macro visible in the body."
