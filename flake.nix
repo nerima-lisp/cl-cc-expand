@@ -62,11 +62,11 @@
     # runtime deps of its own (see cl-cc-vm's current flake.nix for that
     # later chain; irrelevant here since cl-cc-vm v0.1.0 never reaches it).
     cl-log-kit = {
-      url = "github:nerima-lisp/cl-log-kit/v2.0.1";
+      url = "github:nerima-lisp/cl-log-kit/v2.2.0";
       flake = false;
     };
     cl-process-kit = {
-      url = "github:nerima-lisp/cl-process-kit/v3.1.0";
+      url = "github:nerima-lisp/cl-process-kit/v3.4.0";
       flake = false;
     };
     cl-codec-kit = {
@@ -77,19 +77,19 @@
     # source input separate so its ASDF registry entry is available while
     # compiling cl-process-kit itself, not only its downstream consumers.
     cl-boundary-kit = {
-      url = "github:nerima-lisp/cl-boundary-kit/v2.0.1";
-      flake = false;
-    };
-    cl-json-kit = {
-      url = "github:nerima-lisp/cl-json-kit/v1.0.2";
+      url = "github:nerima-lisp/cl-boundary-kit/v2.3.0";
       flake = false;
     };
     cl-date-kit = {
-      url = "github:nerima-lisp/cl-date-kit/v0.2.0";
+      url = "github:nerima-lisp/cl-date-kit/v1.1.1";
       flake = false;
     };
     cl-concurrent-kit = {
-      url = "github:nerima-lisp/cl-concurrent-kit/v0.3.0";
+      url = "github:nerima-lisp/cl-concurrent-kit/v0.6.1";
+      flake = false;
+    };
+    cl-json-kit = {
+      url = "github:nerima-lisp/cl-json-kit/v1.2.0";
       flake = false;
     };
 
@@ -99,16 +99,16 @@
     # DEPENDENCY_POLICY.md's tag rule instead of carrying that same bare
     # commit forward.
     cl-regex-kit = {
-      url = "github:nerima-lisp/cl-regex-kit/v0.3.0";
+      url = "github:nerima-lisp/cl-regex-kit/v2.2.0";
       flake = false;
     };
     # cl-regex-kit's own tokenizer dependency.
     cl-parser-kit = {
-      url = "github:nerima-lisp/cl-parser-kit/v1.0.3";
+      url = "github:nerima-lisp/cl-parser-kit/v1.1.1";
       flake = false;
     };
     cl-tty-kit = {
-      url = "github:nerima-lisp/cl-tty-kit/v1.2.0";
+      url = "github:nerima-lisp/cl-tty-kit/v1.6.1";
       flake = false;
     };
 
@@ -119,14 +119,14 @@
 
     # Direct dependency for HOST-KIT:GETENV in src/macros-stdlib.lisp.
     cl-host-kit = {
-      url = "github:nerima-lisp/cl-host-kit/v0.2.5";
+      url = "github:nerima-lisp/cl-host-kit/v0.3.1";
       flake = false;
     };
 
     # Test-only: cl-weave is the org's test framework. Pinned to its release
     # tag, which is what every other repository in the org references.
     cl-weave = {
-      url = "github:nerima-lisp/cl-weave/v1.1.4";
+      url = "github:nerima-lisp/cl-weave/v1.4.0";
       flake = false;
     };
 
@@ -139,7 +139,7 @@
     # repository's default branch and would change this build without
     # warning.
     cl-nix-forge = {
-      url = "github:nerima-lisp/cl-nix-forge/v0.4.0";
+      url = "github:nerima-lisp/cl-nix-forge/v0.6.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -171,9 +171,9 @@
       cl-process-kit,
       cl-codec-kit,
       cl-boundary-kit,
-      cl-json-kit,
       cl-date-kit,
       cl-concurrent-kit,
+      cl-json-kit,
       cl-regex-kit,
       cl-parser-kit,
       cl-tty-kit,
@@ -273,26 +273,11 @@
               hostKit
             ];
           };
-          codecKit = mkDependency {
-            lispSystem = "cl-codec-kit";
-            source = cl-codec-kit;
-            asd = "/cl-codec-kit.asd";
-          };
-          dateKit = mkDependency {
-            lispSystem = "cl-date-kit";
-            source = cl-date-kit;
-            asd = "/cl-date-kit.asd";
-          };
-          concurrentKit = mkDependency {
-            lispSystem = "cl-concurrent-kit";
-            source = cl-concurrent-kit;
-            asd = "/cl-concurrent-kit.asd";
-          };
           boundaryKit = mkDependency {
             lispSystem = "cl-boundary-kit";
             source = cl-boundary-kit;
             asd = "/cl-boundary-kit.asd";
-            lispDependencies = [ logKit ];
+            lispDependencies = [ hostKit ];
           };
           processKit = mkDependency {
             lispSystem = "cl-process-kit";
@@ -302,6 +287,7 @@
               boundaryKit
               logKit
               codecKit
+              concurrentKit
             ];
           };
           jsonKit = mkDependency {
@@ -324,17 +310,42 @@
             source = cl-parser-kit;
             asd = "/cl-parser-kit.asd";
           };
+          codecKit = mkDependency {
+            lispSystem = "cl-codec-kit";
+            source = cl-codec-kit;
+            asd = "/cl-codec-kit.asd";
+          };
+          dateKit = mkDependency {
+            lispSystem = "cl-date-kit";
+            source = cl-date-kit;
+            asd = "/cl-date-kit.asd";
+          };
+          concurrentKit = mkDependency {
+            lispSystem = "cl-concurrent-kit";
+            source = cl-concurrent-kit;
+            asd = "/cl-concurrent-kit.asd";
+            lispDependencies = [
+              boundaryKit
+              dateKit
+            ];
+          };
           regexKit = mkDependency {
             lispSystem = "cl-regex-kit";
             source = cl-regex-kit;
             asd = "/cl-regex-kit.asd";
-            lispDependencies = [ parserKit ];
+            lispDependencies = [
+              parserKit
+              concurrentKit
+            ];
           };
           ttyKit = mkDependency {
             lispSystem = "cl-tty-kit";
             source = cl-tty-kit;
             asd = "/cl-tty-kit.asd";
-            lispDependencies = [ codecKit ];
+            lispDependencies = [
+              codecKit
+              concurrentKit
+            ];
           };
           vm = mkDependency {
             lispSystem = "cl-cc-vm";
