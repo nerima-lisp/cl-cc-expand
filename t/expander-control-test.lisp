@@ -21,6 +21,13 @@
     (let ((result (cl-cc/expand::expand-eval-when-form '(:compile-toplevel) '((+ 1 2)))))
       (assert-eq nil result))))
 
+(deftest expand-eval-when-propagates-compile-time-errors
+  "eval-when must not turn a compile-time body error into a successful expansion."
+  (assert-signals error
+    (cl-cc/expand::expand-eval-when-form
+     '(:compile-toplevel)
+     '((error "injected eval-when failure")))))
+
 (deftest expand-macrolet-form-expands-local-macro
   "expand-macrolet-form makes a local macro visible in the body."
   (let* ((result (cl-cc/expand::expand-macrolet-form
