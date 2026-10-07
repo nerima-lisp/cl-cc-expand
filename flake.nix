@@ -277,7 +277,7 @@
             lispSystem = "cl-boundary-kit";
             source = cl-boundary-kit;
             asd = "/cl-boundary-kit.asd";
-            lispDependencies = [ logKit hostKit ];
+            lispDependencies = [ hostKit ];
           };
           processKit = mkDependency {
             lispSystem = "cl-process-kit";
