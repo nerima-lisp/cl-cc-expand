@@ -267,7 +267,11 @@
             lispSystem = "cl-log-kit";
             source = cl-log-kit;
             asd = "/cl-log-kit.asd";
-            lispDependencies = [ dateKit concurrentKit hostKit ];
+            lispDependencies = [
+              dateKit
+              concurrentKit
+              hostKit
+            ];
           };
           codecKit = mkDependency {
             lispSystem = "cl-codec-kit";
