@@ -276,21 +276,6 @@
               hostKit
             ];
           };
-          codecKit = mkDependency {
-            lispSystem = "cl-codec-kit";
-            source = cl-codec-kit;
-            asd = "/cl-codec-kit.asd";
-          };
-          dateKit = mkDependency {
-            lispSystem = "cl-date-kit";
-            source = cl-date-kit;
-            asd = "/cl-date-kit.asd";
-          };
-          concurrentKit = mkDependency {
-            lispSystem = "cl-concurrent-kit";
-            source = cl-concurrent-kit;
-            asd = "/cl-concurrent-kit.asd";
-          };
           boundaryKit = mkDependency {
             lispSystem = "cl-boundary-kit";
             source = cl-boundary-kit;
