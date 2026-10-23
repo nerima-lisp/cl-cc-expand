@@ -75,6 +75,8 @@ than follow the default branch.
 
 ## Development
 
+This flake declares outputs only for x86_64-linux; run these commands from an x86_64 Linux environment.
+
 ```sh
 nix develop      # SBCL with CL_SOURCE_REGISTRY already set
 nix run .#test    # run the test suite

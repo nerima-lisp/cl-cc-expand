@@ -6,61 +6,27 @@
     # release tests pass, so it is less likely to land a broken build.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # cl-cc-expand.asd's own :depends-on is ("cl-cc-bootstrap" "cl-cc-type"
-    # "cl-cc-vm"), all three already externalized. cl-cc-type and cl-cc-vm
-    # each pull in their own transitive closure, so every sibling below is
-    # consumed purely as a raw ASDF source tree (`cl.lispDerivation`'s
-    # `src`), exactly as cl-cc-cps and cl-cc-type do for cl-cc-ast and
-    # cl-weave -- this flake never touches those repositories' own
-    # packages/checks outputs, and none of the `flake = false` entries carry
-    # `inputs.nixpkgs.follows` (a source-only input has no inputs of its own
-    # to redirect).
-    #
-    # Direct dependency, pinned to its release tag per DEPENDENCY_POLICY.md's
-    # "tag, not bare commit" rule. Diffed against cl-cc-bootstrap's current
-    # HEAD (821bc1f) before pinning: the only changes since v0.1.0 are
-    # docs/CI/metadata, zero src/ changes, so the tag is functionally
-    # identical to HEAD.
+    # These input repositories provide the ASDF source trees used below.
+    # Pin commits to keep the dependency graph fixed.
     cl-cc-bootstrap = {
-      url = "github:nerima-lisp/cl-cc-bootstrap/v0.1.0";
+      url = "github:nerima-lisp/cl-cc-bootstrap/027f6c9826010c15789454e69abd2930738b50af";
       flake = false;
     };
-
-    # Transitive, via cl-cc-type's own :depends-on ("cl-cc-ast"). Pinned to
-    # the same v0.2.0 tag cl-cc-type's own flake.nix already builds against,
-    # so this is a combination already proven to work rather than an
-    # independently-guessed pin.
     cl-cc-ast = {
-      url = "github:nerima-lisp/cl-cc-ast/v0.2.0";
+      url = "github:nerima-lisp/cl-cc-ast/a45c5acecfccb91a43f6a04251e8a5d6ec3d3213";
       flake = false;
     };
 
     cl-cc-type = {
-      url = "github:nerima-lisp/cl-cc-type/v0.2.0";
+      url = "github:nerima-lisp/cl-cc-type/ff2e742911b4b193457a75208b7b9ad6b06ab23a";
       flake = false;
     };
 
-    # cl-cc-vm's :depends-on at its v0.1.0 tag is exactly
-    # (:cl-cc-bootstrap :cl-cc-runtime :cl-regex-kit :cl-tty-kit) --
-    # verified by reading cl-cc-vm.asd AT that tag rather than at its
-    # current HEAD, which has since added a fourth dependency
-    # (cl-host-kit, from a later uiop migration) that v0.1.0's source does
-    # not use. Pinning the whole transitive closure to the era each
-    # dependency's own v0.1.0-generation flake.nix used (cl-cc-runtime
-    # v0.1.0, which itself predates cl-log-kit 2.0.0's move off
-    # zero-dependency) keeps every pin below internally consistent instead
-    # of mixing a v0.1.0 leaf against a newer sibling it was never built or
-    # tested against.
     cl-cc-runtime = {
-      url = "github:nerima-lisp/cl-cc-runtime/v0.1.0";
+      url = "github:nerima-lisp/cl-cc-runtime/d23ea44512b162def39ec981426c4c8e1af4df84";
       flake = false;
     };
 
-    # cl-cc-runtime v0.1.0's own :depends-on ("cl-log-kit" "cl-process-kit"
-    # "cl-json-kit") -- the v1.0.0 generation of each, before cl-log-kit
-    # 2.0.0 added cl-date-kit/cl-concurrent-kit/cl-boundary-kit as new
-    # runtime deps of its own (see cl-cc-vm's current flake.nix for that
-    # later chain; irrelevant here since cl-cc-vm v0.1.0 never reaches it).
     cl-log-kit = {
       url = "github:nerima-lisp/cl-log-kit/v2.2.0";
       flake = false;
@@ -73,9 +39,8 @@
       url = "github:nerima-lisp/cl-codec-kit/v0.6.0";
       flake = false;
     };
-    # cl-process-kit v1.0.0 also depends on cl-boundary-kit.  Keep this
-    # source input separate so its ASDF registry entry is available while
-    # compiling cl-process-kit itself, not only its downstream consumers.
+    # Keep this input separate so cl-process-kit can resolve cl-boundary-kit
+    # from its ASDF registry while it compiles.
     cl-boundary-kit = {
       url = "github:nerima-lisp/cl-boundary-kit/v2.3.0";
       flake = false;
@@ -93,11 +58,6 @@
       flake = false;
     };
 
-    # cl-cc-vm v0.1.0's other two direct deps. cl-regex-kit had no tagged
-    # release when cl-cc-vm's own flake.nix was last written (it pinned a
-    # bare commit); it has one now (v0.2.0), so this follows
-    # DEPENDENCY_POLICY.md's tag rule instead of carrying that same bare
-    # commit forward.
     cl-regex-kit = {
       url = "github:nerima-lisp/cl-regex-kit/v2.2.0";
       flake = false;
@@ -113,7 +73,7 @@
     };
 
     cl-cc-vm = {
-      url = "github:nerima-lisp/cl-cc-vm/v0.1.0";
+      url = "github:nerima-lisp/cl-cc-vm/462213fcf5e0e6cecc09992e8cb0b7ed48dbce2f";
       flake = false;
     };
 
@@ -187,18 +147,9 @@
     let
       lib = nixpkgs.lib;
 
-      # x86_64-linux is what CI gates; aarch64-darwin is the development
-      # machine. Every per-system output -- packages, checks, apps AND devShells
-      # -- comes from this one list, so leaving aarch64-darwin out takes `nix
-      # build` and `nix develop` off the development machine as well. That trade
-      # was made on 2026-08-01 and reverted on 2026-08-02; aarch64-darwin carries
-      # no CI gate, which PACKAGE_STANDARD.md's "systems" section accepts
-      # explicitly. aarch64-linux and x86_64-darwin are nobody's verification and
-      # are not declared.
-      systems = [
-        "x86_64-linux"
-        "aarch64-darwin"
-      ];
+      # The package, checks, apps, and dev shell are declared only for
+      # x86_64-linux, which is the CI target.
+      systems = [ "x86_64-linux" ];
 
       # cl-cc-expand's own suite is ~90 source-derived test files (ported
       # wholesale from the monorepo's packages/expand/tests/ via the
