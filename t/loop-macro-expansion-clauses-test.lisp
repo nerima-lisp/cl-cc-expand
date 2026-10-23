@@ -25,3 +25,6 @@
   (assert-eq 'block (car result))
   (let ((bindings (cadr (caddr result))))
     (assert-true (member '(x 42) bindings :test #'equal))))
+(deftest w2-13-control-deliberate-test-failure
+  "Deliberate failure used to verify the test CI gate."
+  (assert-true nil))
