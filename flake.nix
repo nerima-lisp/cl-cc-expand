@@ -351,46 +351,49 @@
         in
         {
           checks = {
-            orphan-tests = pkgs.runCommand "cl-cc-expand-orphan-tests" {
-              inherit (ctx) src;
-              nativeBuildInputs = [ pkgs.python3 ];
-            } ''
-              python3 - "$src" <<'PY'
-              import re
-              import sys
-              from pathlib import Path
+            orphan-tests =
+              pkgs.runCommand "cl-cc-expand-orphan-tests"
+                {
+                  inherit (ctx) src;
+                  nativeBuildInputs = [ pkgs.python3 ];
+                }
+                ''
+                  python3 - "$src" <<'PY'
+                  import re
+                  import sys
+                  from pathlib import Path
 
-              root = Path(sys.argv[1])
-              asd = (root / "cl-cc-expand.asd").read_text()
-              marker = re.search(r'(?m)^\((?:asdf:)?defsystem\s+"cl-cc-expand/test"', asd)
-              if marker is None:
-                  raise SystemExit("cl-cc-expand/test system is missing")
+                  root = Path(sys.argv[1])
+                  asd = (root / "cl-cc-expand.asd").read_text()
+                  marker = re.search(r'(?m)^\((?:asdf:)?defsystem\s+"cl-cc-expand/test"', asd)
+                  if marker is None:
+                      raise SystemExit("cl-cc-expand/test system is missing")
 
-              test_system = asd[marker.end():]
-              next_system = re.search(r'(?m)^[ \t]*\((?:asdf:)?defsystem\b', test_system)
-              if next_system is not None:
-                  test_system = test_system[:next_system.start()]
-              components = set(re.findall(r'\(:file\s+"([^"]+)"\)', test_system))
-              test_root = root / "t"
-              test_files = sorted(test_root.rglob("*.lisp"))
-              if not test_files:
-                  raise SystemExit("no Lisp files found under t/")
+                  test_system = asd[marker.end():]
+                  next_system = re.search(r'(?m)^[ \t]*\((?:asdf:)?defsystem\b', test_system)
+                  if next_system is not None:
+                      test_system = test_system[:next_system.start()]
+                  components = set(re.findall(r'\(:file\s+"([^"]+)"\)', test_system))
+                  test_root = root / "t"
+                  test_files = sorted(test_root.rglob("*.lisp"))
+                  if not test_files:
+                      raise SystemExit("no Lisp files found under t/")
 
-              orphans = [
-                  path.relative_to(root)
-                  for path in test_files
-                  if path.relative_to(test_root).with_suffix("").as_posix() not in components
-              ]
-              if orphans:
-                  print("Orphan test files:")
-                  for path in orphans:
-                      print(f"  {path}")
-                  raise SystemExit(1)
+                  orphans = [
+                      path.relative_to(root)
+                      for path in test_files
+                      if path.relative_to(test_root).with_suffix("").as_posix() not in components
+                  ]
+                  if orphans:
+                      print("Orphan test files:")
+                      for path in orphans:
+                          print(f"  {path}")
+                      raise SystemExit(1)
 
-              print(f"Checked {len(test_files)} Lisp files under t/: 0 orphan test files.")
-              PY
-              touch "$out"
-            '';
+                  print(f"Checked {len(test_files)} Lisp files under t/: 0 orphan test files.")
+                  PY
+                  touch "$out"
+                '';
             paredit-lint = paredit-cli.lib.${ctx.system}.mkLintCheck {
               inherit (ctx) src;
               name = "cl-cc-expand-paredit-lint";
