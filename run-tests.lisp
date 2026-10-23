@@ -1,10 +1,10 @@
-;;;; run-tests.lisp — load "cl-cc-expand/test" and run the cl-weave suite.
+;;;; run-tests.lisp — run the ASDF test operation for cl-cc-expand/test.
 ;;;;
 ;;;; Bootstrap script: point ASDF's source registry at this checkout, then let
 ;;;; the inherited configuration resolve the dependencies. cl-cc-bootstrap,
-;;;; cl-cc-type, cl-cc-vm (and their own transitive closures) and cl-weave
-;;;; must already be reachable through CL_SOURCE_REGISTRY, which flake.nix
-;;;; exports for `nix flake check`, `nix run .#test` and the devShell.
+;;;; cl-cc-type, cl-cc-vm, cl-host-kit (and their transitive closures), and
+;;;; cl-weave must already be reachable through CL_SOURCE_REGISTRY, which
+;;;; flake.nix exports for `nix flake check`, `nix run .#test` and the devShell.
 ;;;;
 ;;;; Usage: sbcl --script run-tests.lisp
 
@@ -23,21 +23,12 @@
    :inherit-configuration))
 
 (handler-case
-    (asdf:load-system "cl-cc-expand/test")
-  (error (e)
-    (format t "~&FAIL cl-cc-expand/test load: ~a~%" e)
-    (finish-output)
-    (uiop:quit 1)))
-
-(if (uiop:symbol-call :cl-weave
-                      :run-all
-                      :reporter :spec
-                      :pass-with-no-tests nil)
     (progn
+      (asdf:test-system "cl-cc-expand/test")
       (format t "~&RESULT: ALL PASS~%")
       (finish-output)
       (uiop:quit 0))
-    (progn
-      (format t "~&RESULT: FAIL~%")
-      (finish-output)
-      (uiop:quit 1)))
+  (error (e)
+    (format t "~&FAIL cl-cc-expand/test: ~a~%" e)
+    (finish-output)
+    (uiop:quit 1)))

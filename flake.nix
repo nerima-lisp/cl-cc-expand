@@ -151,11 +151,10 @@
       # x86_64-linux, which is the CI target.
       systems = [ "x86_64-linux" ];
 
-      # cl-cc-expand's own suite is ~90 source-derived test files (ported
-      # wholesale from the monorepo's packages/expand/tests/ via the
-      # cl-cc-type shim pattern), larger than cl-cc-cps's but well short of
-      # cl-cc-type's 1200s budget; 300s leaves headroom without adopting
-      # cl-cc-type's number wholesale.
+      # cl-cc-expand's suite is ported from the monorepo's
+      # packages/expand/tests/ via cl-cc-type's shim pattern. It is larger
+      # than cl-cc-cps's but well short of cl-cc-type's 1200s budget; 300s
+      # leaves headroom without adopting cl-cc-type's budget wholesale.
       testTimeout = 300;
     in
     cl-nix-forge.lib.${builtins.head systems}.mkPackageFlake {
@@ -335,11 +334,6 @@
       # runs cannot drift apart.
       timeoutSeconds = testTimeout;
 
-      # No `docs` attribute: like cl-cc-cps, this extraction did not stand
-      # up an MkDocs Material site. `docs = null` (the preset's default)
-      # omits the docs package and its check entirely rather than failing on
-      # a missing docs/mkdocs.yml.
-
       # ONE treefmt evaluation drives `nix fmt` and the `checks.formatting`
       # gate, so the formatter and the CI gate can never disagree about what
       # "formatted" means. Scope stays the preset's Nix-only default:
@@ -350,13 +344,58 @@
       # Granularity lives here, NOT in extra GitHub Actions jobs: `nix flake
       # check` evaluates each attribute as its own derivation, in parallel,
       # with build caching.
-      extraOutputs = ctx: {
-        checks = {
-          paredit-lint = paredit-cli.lib.${ctx.system}.mkLintCheck {
-            inherit (ctx) src;
-            name = "cl-cc-expand-paredit-lint";
+      extraOutputs =
+        ctx:
+        let
+          pkgs = nixpkgs.legacyPackages.${ctx.system};
+        in
+        {
+          checks = {
+            orphan-tests = pkgs.runCommand "cl-cc-expand-orphan-tests" {
+              inherit (ctx) src;
+              nativeBuildInputs = [ pkgs.python3 ];
+            } ''
+              python3 - "$src" <<'PY'
+              import re
+              import sys
+              from pathlib import Path
+
+              root = Path(sys.argv[1])
+              asd = (root / "cl-cc-expand.asd").read_text()
+              marker = re.search(r'(?m)^\((?:asdf:)?defsystem\s+"cl-cc-expand/test"', asd)
+              if marker is None:
+                  raise SystemExit("cl-cc-expand/test system is missing")
+
+              test_system = asd[marker.end():]
+              next_system = re.search(r'(?m)^[ \t]*\((?:asdf:)?defsystem\b', test_system)
+              if next_system is not None:
+                  test_system = test_system[:next_system.start()]
+              components = set(re.findall(r'\(:file\s+"([^"]+)"\)', test_system))
+              test_root = root / "t"
+              test_files = sorted(test_root.rglob("*.lisp"))
+              if not test_files:
+                  raise SystemExit("no Lisp files found under t/")
+
+              orphans = [
+                  path.relative_to(root)
+                  for path in test_files
+                  if path.relative_to(test_root).with_suffix("").as_posix() not in components
+              ]
+              if orphans:
+                  print("Orphan test files:")
+                  for path in orphans:
+                      print(f"  {path}")
+                  raise SystemExit(1)
+
+              print(f"Checked {len(test_files)} Lisp files under t/: 0 orphan test files.")
+              PY
+              touch "$out"
+            '';
+            paredit-lint = paredit-cli.lib.${ctx.system}.mkLintCheck {
+              inherit (ctx) src;
+              name = "cl-cc-expand-paredit-lint";
+            };
           };
         };
-      };
     };
 }

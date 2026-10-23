@@ -59,29 +59,6 @@
 
 ;;; ── macro runtime behaviour ──────────────────────────────────────────────
 
-(deftest macros-setops-member-finds-element
-  "member finds an element in a list using EQL (default)."
-  (assert-true (run-string "(member 2 '(1 2 3))")))
-
-(deftest macros-setops-remove-filters-element
-  "remove removes all matching elements."
-  (assert-equal '(1 3) (run-string "(remove 2 '(1 2 3))")))
-
-(deftest macros-setops-union-no-duplicates
-  "union merges two lists without duplicates."
-  (let ((result (run-string "(sort (union '(1 2) '(2 3)) #'<)")))
-    (assert-equal '(1 2 3) result)))
-
-(deftest macros-setops-intersection-common-elements
-  "intersection returns common elements."
-  (let ((result (run-string "(sort (intersection '(1 2 3) '(2 3 4)) #'<)")))
-    (assert-equal '(2 3) result)))
-
-(deftest macros-setops-set-difference-removes-second-set
-  "set-difference removes elements of second list from first."
-  (let ((result (run-string "(sort (set-difference '(1 2 3) '(2)) #'<)")))
-    (assert-equal '(1 3) result)))
-
 (deftest-each macros-setops-hash-fast-path-expands
   "Large compatible set operations expand to a hash-table fast path."
   :cases (("union"

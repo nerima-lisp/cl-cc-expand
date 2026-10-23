@@ -1,19 +1,7 @@
 ;;;; t/package.lisp — cl-cc-expand test package + cl-weave compatibility shim.
 ;;;;
-;;;; The cl-cc-expand suite was written against the monorepo's deftest /
-;;;; deftest-each / assert-* macros (packages/testing-framework). Rather
-;;;; than rewrite ~90 files by hand, this shim re-expresses those forms on
-;;;; top of cl-weave's it-sequential / expect, so every test runs on
-;;;; cl-weave unchanged apart from its in-package form. This is the same
-;;;; shim shape cl-cc-type used for its own (much larger) monorepo-deftest
-;;;; suite; see that repository's t/package.lisp for the precedent.
-;;;;
-;;;; Note on ASSERT-SIGNALS: the monorepo's own framework version
-;;;; (packages/testing-framework/src/framework-assertions.lisp) already
-;;;; fails correctly when no condition is signaled or the wrong condition
-;;;; type is signaled — this shim preserves that (correct) behavior rather
-;;;; than the older always-passes bug documented for some earlier
-;;;; extractions.
+;;;; The suite's deftest, deftest-each, and assert-* forms map onto cl-weave's
+;;;; it-sequential and expect forms, preserving the test bodies.
 (defpackage :cl-cc-expand/test
   (:use :cl :cl-weave)
   (:shadowing-import-from :cl-weave #:describe)
@@ -36,7 +24,7 @@
 
 (in-package :cl-cc-expand/test)
 
-;;; ── test definition shims ────────────────────────────────────────────────
+;;; Test definition shims
 (defun %test-name (designator)
   (if (stringp designator) designator
     (string-downcase (string designator))))
@@ -86,7 +74,7 @@ The suite argument is ignored; the hook applies to the flat test set."
     (:each `(before-each ,@body))
     (:all `(before-all ,@body))))
 
-;;; ── assertion shims (map onto cl-weave expect) ───────────────────────────
+;;; Assertion shims map onto cl-weave expect.
 (defmacro assert-true (form &rest _)
   (declare (ignore _))
   `(expect ,form :to-be-truthy))

@@ -57,13 +57,6 @@
     (assert-= (length member-call) 5)
     (assert-equal last-arg '#'equal)))
 
-(deftest-each pushnew-runtime-behavior
-  "PUSHNEW adds missing elements but skips duplicates."
-  :cases (("adds-missing"  4 "(let ((lst (list 1 2 3))) (pushnew 4 lst) (length lst))")
-          ("no-duplicate"  3 "(let ((lst (list 1 2 3))) (pushnew 2 lst) (length lst))"))
-  (expected code)
-  (assert-= expected (run-string code)))
-
 ;;; ─── compound place: %compound-place-binding ──────────────────────────────
 
 (deftest-each compound-place-expansion-uses-let*

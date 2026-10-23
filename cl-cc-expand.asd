@@ -1,33 +1,11 @@
 ;;;; cl-cc-expand.asd — macro expansion subsystem for the cl-cc compiler.
 ;;;;
-;;;; Extracted from the cl-cc monorepo (docs/notes/repo-split-design.md
-;;;; §10-7, 2026-08-01 audit): cl-cc-expand's own ASDF deps
-;;;; (cl-cc-bootstrap, cl-cc-type, cl-cc-vm) were already external, making
-;;;; it a clean leaf dependency-wise. Three monorepo files reached into
-;;;; cl-cc/expand:: internals directly (packages/selfhost's host-bridge
-;;;; table, packages/stdlib's self-hosted PROCLAIM source string, and
-;;;; packages/testing-framework's cache-clearing fixture); those eight
-;;;; symbols were exported from cl-cc/expand in the decoupling commit that
-;;;; preceded this extraction, so none of that in-tree code reaches past
-;;;; the package's public interface anymore.
-;;;;
-;;;; NOTE on src/match.lisp: this file ships in the repository but is
-;;;; deliberately NOT listed in :components below, exactly as
-;;;; cl-cc-cps carries three unwired source files forward from the
-;;;; monorepo. match.lisp was already dead/unwired in the monorepo before
-;;;; this extraction (absent from packages/expand/cl-cc-expand.asd's own
-;;;; :components, and MATCH is not in cl-cc/expand's :export list); this
-;;;; extraction preserves that status quo rather than silently reviving or
-;;;; silently deleting it. The matching orphan test file (t/match-test.lisp,
-;;;; ported from packages/expand/tests/match-tests.lisp) is carried the same
-;;;; way, plus t/macros-keyword-opt-test.lisp (ported from
-;;;; packages/expand/tests/macros-keyword-opt-tests.lisp), which calls
-;;;; CL-CC/EXPAND:KEYWORD-OPTIMIZE-CALL — a symbol that does not exist
-;;;; anywhere in this package's source, monorepo or here. Both were already
-;;;; absent from the monorepo's own cl-cc.asd "expand-tests" module (the
-;;;; wired test list this extraction otherwise ported wholesale); neither
-;;;; is listed in "cl-cc-expand/test" below.
-;;;;
+;;;; The nine public names used by cl-cc runtime integration are
+;;;; RT-USE-PACKAGE, ADD-PACKAGE-LOCAL-NICKNAME,
+;;;; %RECORD-DECLAIM-INLINE-CLAUSE, %RECORD-DECLAIM-OPTIMIZE-CLAUSE,
+;;;; %RECORD-DECLAIM-TYPE-CLAUSE, %RECORD-DECLAIM-FTYPE-CLAUSE,
+;;;; %RECORD-DECLAIM-SPECIAL-CLAUSE, *MACROEXPAND-STEP-CACHE*, and
+;;;; *MACROEXPAND-ALL-CACHE*.
 ;;;; Both systems live in this one file; there is no separate
 ;;;; cl-cc-expand-test.asd. System names are written as STRINGS rather than
 ;;;; #:symbols or :keywords, so that reading this file does not depend on the
@@ -62,7 +40,7 @@
    (:file "macros-control-flow") ; bootstrap control-flow macros (when/unless/cond/do*)
    (:file "macros-control-flow-case") ; case/typecase macro expansion
    (:file "macros-mutation")     ; push/pop/incf/decf split from stdlib
-   (:file "loop-data")           ; LOOP: grammar tables — the "Prolog database"
+   (:file "loop-data")           ; LOOP: grammar tables
    (:file "loop-parser-for")     ; LOOP: token predicates, CPS utils, FOR sub-parsers
    (:file "loop-parser")         ; LOOP: CPS token parser → IR plist
    (:file "loop-emitters")       ; LOOP: registration macros + accumulation emitters
@@ -143,6 +121,8 @@
     (:file "macros-basic-check-type-test")
     (:file "macros-basic-list-test")
     (:file "macros-basic-setf-test")
+    (:file "macros-basic-mvb-test")
+    (:file "macros-mutation-test")
     (:file "expander-setf-test")
     (:file "expander-setf-places-test")
     (:file "expander-control-test")
@@ -171,6 +151,9 @@
     (:file "loop-data-test")
     (:file "loop-parser-test")
     (:file "loop-emitters-test")
+    (:file "loop-macro-expansion-test")
+    (:file "loop-macro-expansion-clauses-test")
+    (:file "loop-macro-expansion-errors-test")
     (:file "macro-rotatef-test")
     (:file "macro-psetf-test")
     (:file "macro-shiftf-test")
@@ -181,6 +164,8 @@
     (:file "macros-cxr-test")
     (:file "macros-introspection-test")
     (:file "macros-list-utils-test")
+    (:file "macros-setops-test")
+    (:file "macros-stdlib-list-set-test")
     (:file "macros-restarts-test")
     (:file "macros-stdlib-core-test")
     (:file "macros-stdlib-test")
@@ -201,10 +186,9 @@
     (:file "syntax-rules-test")
     (:file "runtime-stdlib-2-expand-test")
     (:file "runtime-stdlib-3-expander-test")
-    ;; Runtime macro tests exercise the full compiler pipeline and remain
-    ;; covered by the parent project's integration tests.
     (:file "runtime-stdlib-3-sequence-test"))
   :perform (test-op
     (op system)
     (declare (ignore op system))
-    (uiop:symbol-call :cl-weave :run-all :reporter :spec :pass-with-no-tests nil)))
+    (unless (uiop:symbol-call :cl-weave :run-all :reporter :spec :pass-with-no-tests nil)
+      (error "cl-cc-expand/test reported failing tests."))))

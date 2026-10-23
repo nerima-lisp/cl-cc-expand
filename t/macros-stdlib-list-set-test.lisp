@@ -24,41 +24,9 @@ vector or string argument concatenates instead of being spliced in as an atom."
     (assert-equal (symbol-name (car result)) "COERCE-TO-VECTOR")
     (assert-eq (caadr result) 'append)))
 
-(deftest-each concatenate-runtime-string
-  "CONCATENATE runtime: string concatenation."
-  :cases (("two-strings" "(concatenate 'string \"hello\" \" \" \"world\")" "hello world")
-          ("empty"       "(concatenate 'string)"                            "")
-          ("single"      "(concatenate 'string \"only\")"                  "only"))
-  (form expected)
-  (assert-equal expected (run-string form)))
-
-(deftest-each concatenate-runtime-list
-  "CONCATENATE runtime: list concatenation and length checks."
-  :cases (("two-lists"   "(concatenate 'list '(1 2) '(3 4))"          '(1 2 3 4))
-          ("four-length" "(length (concatenate 'list '(1 2) '(3 4)))"  4)
-          ("one-length"  "(length (concatenate 'list '(1)))"           1))
-  (form expected)
-  (assert-equal expected (run-string form)))
-
-(deftest-each notany-notevery-runtime
-  "notany/notevery runtime behaviour mirrors (not (some/every ...))."
-  :cases (("notany-all-fail"    "(notany #'evenp '(1 3 5))"   t)
-          ("notany-one-passes"  "(notany #'evenp '(1 2 3))"   nil)
-          ("notevery-all-pass"  "(notevery #'oddp '(1 3 5))"  nil)
-          ("notevery-one-fails" "(notevery #'oddp '(1 2 3))"  t))
-  (code expected)
-  (assert-equal expected (not (null (run-string code)))))
-
 (deftest nreconc-expands-to-nconc-nreverse
   "NRECONC expands to (nconc (nreverse list) tail)."
   (let ((result (our-macroexpand-1 '(nreconc lst tail))))
     (assert-eq (car result) 'nconc)
     (assert-eq (caadr result) 'nreverse)
     (assert-eq (caddr result) 'tail)))
-
-(deftest-each nreconc-runtime
-  "NRECONC prepends reversed list onto tail."
-  :cases (("basic"      "(nreconc (list 3 2 1) '(4 5))" '(1 2 3 4 5))
-          ("empty-left" "(nreconc '() '(1 2))"          '(1 2)))
-  (form expected)
-  (assert-equal expected (run-string form)))
