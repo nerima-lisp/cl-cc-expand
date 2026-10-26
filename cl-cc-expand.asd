@@ -178,7 +178,15 @@
      (:file "runtime-stdlib-3-expander-test") (:file "export-surface-test") (:file "runtime-support-test")
      (:file "sequence-test") (:file "stdlib-ansi-test")
      (:file "stdlib-core-test") (:file "stdlib-test")
-     (:file "syntax-rules-test") (:file "tail-test")))
+     (:file "syntax-rules-test") (:file "tail-test") (:file "predicate-expansion-shape-test")
+   (:module "pbt" :serial t :components
+    ((:file "generators-cl-weave")
+     (:file "macro-pbt-tests")
+     (:file "macro-pbt-advanced-tests")
+     (:file "macro-pbt-binding-tests")
+     (:file "macro-pbt-hygiene-tests")
+     (:file "macro-pbt-mv-tests")
+     (:file "macro-pbt-props-tests")))))
    (:module "control"
     :serial t
     :components
