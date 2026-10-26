@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-setops-tests.lisp — Set operations macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-setops-suite
   :description "Set operation macro tests"
@@ -34,7 +34,7 @@
           ("test-not-given" nil '#'equal  '(:test-not #'equal))
           ("neither"        nil nil        nil))
   (test test-not expected)
-  (assert-equal expected (cl-cc/expand::%keyword-test-args test test-not)))
+  (assert-equal expected (cl-cc/expand/lists-and-sets:%keyword-test-args test test-not)))
 
 ;;; ── %keyword-test-key-args ───────────────────────────────────────────────
 
@@ -45,7 +45,7 @@
           ("no-test-no-key"   nil     nil      nil     nil)
           ("test-only"        '#'eql  nil      nil     '(:test #'eql)))
   (test test-not key expected)
-  (assert-equal expected (cl-cc/expand::%keyword-test-key-args test test-not key)))
+  (assert-equal expected (cl-cc/expand/lists-and-sets:%keyword-test-key-args test test-not key)))
 
 ;;; ── %test-predicate-form ─────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@
           ("test"      '#'eq nil    '#'eq)
           ("default"   nil nil      '#'eql))
   (test test-not expected)
-  (assert-equal expected (cl-cc/expand::%test-predicate-form test test-not)))
+  (assert-equal expected (cl-cc/expand/lists-and-sets:%test-predicate-form test test-not)))
 
 ;;; ── macro runtime behaviour ──────────────────────────────────────────────
 

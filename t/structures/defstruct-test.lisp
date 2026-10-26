@@ -3,7 +3,7 @@
 ;;;; Tests for the defstruct → (progn defclass defun defun) expansion.
 ;;;; Covers: basic structs, :conc-name, :constructor, BOA constructors,
 ;;;; slot defaults, predicate generation, and accessor-slot-map side effect.
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/structures/test)
 
 (defsuite
   defstruct-suite
@@ -17,7 +17,7 @@
 ;;; ─── Helpers ──────────────────────────────────────────────────────────────
 (defun ds-expand (form)
   "Shorthand: call expand-defstruct and return the expansion."
-  (cl-cc/expand::expand-defstruct form))
+  (cl-cc/expand/structures:expand-defstruct form))
 
 (defun ds-progn-forms (expansion)
   "Return the body forms of a (progn ...) expansion (cdr)."
@@ -226,7 +226,7 @@
     (assert-signals
       error
       (cl-cc/expand:compiler-macroexpand-all
-        '(setf (cl-cc/expand::packet-id p) 10)))))
+        '(setf (cl-cc/expand/expander:packet-id p) 10)))))
 
 (deftest
   ds-empty-struct-has-zero-slots
@@ -257,21 +257,21 @@
     ("single" '(x) '((x) . nil))
     ("two" '(x y) '((x y) . nil)))
   (boa-args expected)
-  (let ((result (cl-cc/expand::%defstruct-extract-boa-parts boa-args)))
+  (let ((result (cl-cc/expand/structures:%defstruct-extract-boa-parts boa-args)))
     (assert-equal (car expected) (car result))
     (assert-equal (cdr expected) (cdr result))))
 
 (deftest
   ds-extract-boa-parts-splits-aux-bindings
   "%defstruct-extract-boa-parts splits params at &aux: normal params on left, aux pairs on right."
-  (let ((result (cl-cc/expand::%defstruct-extract-boa-parts '(x y &aux (z 0) (w 1)))))
+  (let ((result (cl-cc/expand/structures:%defstruct-extract-boa-parts '(x y &aux (z 0) (w 1)))))
     (assert-equal '(x y) (car result))
     (assert-equal '((z 0) (w 1)) (cdr result))))
 
 (deftest
   ds-extract-boa-parts-promotes-bare-aux-symbol
   "%defstruct-extract-boa-parts promotes a bare &aux symbol to a (sym nil) pair."
-  (let ((result (cl-cc/expand::%defstruct-extract-boa-parts '(x &aux z))))
+  (let ((result (cl-cc/expand/structures:%defstruct-extract-boa-parts '(x &aux z))))
     (assert-equal '(x) (car result))
     (assert-equal '((z nil)) (cdr result))))
 
@@ -284,7 +284,7 @@
     ("skips-keywords" '(&optional x &rest y) '(x y))
     ("empty" nil nil))
   (params expected)
-  (assert-equal expected (cl-cc/expand::%defstruct-boa-param-names params)))
+  (assert-equal expected (cl-cc/expand/structures:%defstruct-boa-param-names params)))
 
 ;;; ─── :type list / :type vector (FR-546) ─────────────────────────────────
 (defun %ds-tree-member (item tree)
@@ -341,7 +341,7 @@
   (all-slots bound-names expected)
   (assert-equal
     expected
-    (cl-cc/expand::%defstruct-resolve-slot-values all-slots bound-names)))
+    (cl-cc/expand/expander:%defstruct-resolve-slot-values all-slots bound-names)))
 
 ;;; ─── %defstruct-build-constructor ────────────────────────────────────────
 (deftest
@@ -440,7 +440,7 @@
   "%defstruct-build-constructor with no BOA args builds (defun ctor (&key ...) body)."
   (let* ((slots '((x 0) (y 1)))
          (result
-        (cl-cc/expand::%defstruct-build-constructor
+        (cl-cc/expand/structures:%defstruct-build-constructor
           'make-pt
           nil
           slots
@@ -456,7 +456,7 @@
   "%defstruct-build-constructor with BOA args builds (defun ctor params (let* aux body))."
   (let* ((slots '((x 0) (y 0)))
          (result
-        (cl-cc/expand::%defstruct-build-constructor
+        (cl-cc/expand/structures:%defstruct-build-constructor
           'make-pt
           '(a b)
           slots

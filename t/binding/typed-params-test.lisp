@@ -5,7 +5,7 @@
 ;;;;         register-function-type / *function-type-registry*,
 ;;;;         expand-type-alias.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/binding/test)
 
 (defsuite expander-typed-params-suite
   :description "Typed-param expander unit tests"

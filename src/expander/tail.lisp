@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;; FR-301: normalise 1-arg rounding ops to 2-arg form with divisor 1.
 ;; Registered via dolist for all *rounding-ops* at once (data-driven).

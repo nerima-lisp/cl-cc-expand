@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/clos)
 ;;;; DEFSTRUCT CLOS-backed expansion helpers.
 
 ;;; ── Standard CLOS-based defstruct expansion ───────────────────────────────

@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-plist-tests.lisp
 ;;;; Coverage tests for src/expand/macros-plist.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-plist-suite
   :description "Tests for macros-plist.lisp"
@@ -40,7 +40,7 @@
 (deftest plist-put-expansion
   "%PLIST-PUT: outer LET, body iterates with LOOP."
   ;; %plist-put is internal to cl-cc/expand (where the macro is defined)
-  (let* ((result    (our-macroexpand-1 '(cl-cc/expand::%plist-put my-plist :key 42)))
+  (let* ((result    (our-macroexpand-1 '(cl-cc/expand/lists-and-sets::%plist-put my-plist :key 42)))
          (loop-form (caddr result)))
     (assert-eq 'let (car result))
     (assert-eq 'loop (car loop-form))))

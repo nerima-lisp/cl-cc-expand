@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-setf-places-tests.lisp — Setf-place expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite expander-setf-places-suite :description "Setf-place expander unit tests"
   :parent cl-cc-unit-suite)
@@ -16,14 +16,14 @@
 
 (deftest expand-setf-accessor-unknown-falls-back-to-slot-value
   "expand-setf-accessor for an unknown accessor lowers through RT-SLOT-SET."
-  (let ((result (cl-cc/expand::expand-setf-accessor '(some-unknown-accessor obj) 'val)))
+  (let ((result (cl-cc/expand/expander:expand-setf-accessor '(some-unknown-accessor obj) 'val)))
     (assert-form-string-contains result "RT-SLOT-SET")))
 
 (deftest expand-setf-accessor-known-maps-to-slot-name
   "expand-setf-accessor for a registered accessor uses the mapped slot name."
   (setf (gethash 'test-reg-accessor cl-cc/expand:*accessor-slot-map*)
         (cons 'test-class 'the-slot))
-  (let ((result (cl-cc/expand::expand-setf-accessor '(test-reg-accessor obj) 'new-val)))
+  (let ((result (cl-cc/expand/expander:expand-setf-accessor '(test-reg-accessor obj) 'new-val)))
     (assert-form-string-contains result "THE-SLOT")))
 
 (deftest-each expand-setf-cons-place
@@ -31,7 +31,7 @@
   :cases (("car" '(car x) "RPLACA")
           ("cdr" '(cdr x) "RPLACD"))
   (place expected-fn)
-  (let ((result (cl-cc/expand::expand-setf-cons-place place 'val)))
+  (let ((result (cl-cc/expand/places:expand-setf-cons-place place 'val)))
     (assert-eq 'let (first result))
     (assert-form-string-contains result expected-fn)))
 

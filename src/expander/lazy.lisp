@@ -1,7 +1,7 @@
 ;;; FR-856: DELAY / FORCE lazy evaluation
 ;;; FR-857: MEMOIZE with hit/miss statistics
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;; ── FR-856 Promises ─────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-mutation-tests.lisp
 ;;;; Mutation macro coverage for src/expand/macros-mutation.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macros-mutation-suite
   :description "Tests for mutation-style stdlib macros"

@@ -2,7 +2,7 @@
 ;;;; Coverage for src/expand/macros-basic.lisp:
 ;;;;   psetq, multiple-value-bind, multiple-value-setq, multiple-value-list
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/binding/test)
 
 (defsuite macros-basic-mvb-suite
   :description "Tests for macros-basic.lisp: psetq and multiple-value forms"

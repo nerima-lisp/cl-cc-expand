@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;;; Declaration (preserved so the parser can see leading declarations)
 

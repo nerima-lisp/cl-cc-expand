@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-comparison-tests.lisp — Numeric and character comparison expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-comparison-suite
   :description "Numeric and character comparison expander unit tests"

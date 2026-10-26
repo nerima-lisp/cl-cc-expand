@@ -1,5 +1,5 @@
 ;;;; tests/unit/expand/expander-definitions-forms-tests.lisp — Definition-form expander tests
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite
   expander-definitions-forms-suite

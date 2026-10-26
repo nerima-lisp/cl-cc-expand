@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-filesystem-tests.lisp
 ;;;; Coverage tests for src/expand/macros-filesystem.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/io/test)
 
 (defsuite macros-filesystem-suite
   :description "Tests for macros-filesystem.lisp"

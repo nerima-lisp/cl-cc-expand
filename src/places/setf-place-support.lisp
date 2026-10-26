@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/places)
 
 ;;; Only setf-place cons-cell expansion uses this logic.
 

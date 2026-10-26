@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-ecase-tests.lisp — ECASE macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/control/test)
 
 (defsuite macro-ecase-suite
   :description "ECASE expansion tests"

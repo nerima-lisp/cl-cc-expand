@@ -2,7 +2,7 @@
 ;;;; FR-728 Decision Tree Compilation, FR-729 Pattern Usefulness Checking,
 ;;;; FR-730 Tail Recursion Modulo Cons, FR-731 Join Points
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;;; ──── FR-728: Decision Tree Compilation for Pattern Matching ────
 (defun compile-pattern-decision-tree (patterns)
@@ -91,6 +91,7 @@ Transform (if c (progn ... end) (progn ... end)) → (letjoin k () end) (if c (k
   form)
 
 ;; ── Exports ──
-(export '(compile-pattern-decision-tree check-pattern-usefulness pattern-subsumes-p
+(export (quote (compile-pattern-decision-tree check-pattern-usefulness pattern-subsumes-p
           *trmc-enabled* trmc-optimize-form
           *join-points-enabled* introduce-join-points))
+        :cl-cc/expand/expander)

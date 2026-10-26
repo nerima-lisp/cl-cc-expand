@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;;; Core definition forms: function/class/flow/type-definition expanders.
 (eval-when (:compile-toplevel :load-toplevel :execute)

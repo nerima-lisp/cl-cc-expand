@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-cxr-tests.lisp — CXR accessor macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-cxr-suite
   :description "CXR accessor macro tests"
@@ -26,4 +26,4 @@
           ("cadddr" 'cadddr 'x '(car (cdr (cdr (cdr x)))))
           ("cddr"   'cddr   'x '(cdr (cdr x))))
   (sym arg expected)
-  (assert-equal expected (cl-cc/expand::%expand-cxr sym arg)))
+  (assert-equal expected (cl-cc/expand/lists-and-sets:%expand-cxr sym arg)))

@@ -9,7 +9,7 @@
 ;;;; macro-psetf-tests.lisp, macro-shiftf-tests.lisp,
 ;;;; and macro-define-modify-macro-tests.lisp.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macros-stdlib-ansi-suite
   :description "Tests for macros-stdlib-ansi.lisp: ANSI CL Phase 1 macros"
@@ -39,19 +39,6 @@
   (let ((result (our-macroexpand-1 '(assert (= x 1)))))
     (assert-eq 'unless (car result))
     (assert-equal '(= x 1) (second result))))
-
-(defun %find-call-in-form (head form)
-  "Return the first (HEAD ...) subform of FORM, searching depth-first.
-
-The searches below have to recurse: ASSERT's failure branch is now
-(let ((c ...)) (signal c) (cerror \"Continue.\" c)), so the CERROR call sits a
-level down and its datum is the LET variable rather than the literal. The SIGNAL
-runs HANDLER-BIND's handlers on the guest stack, where an INVOKE-RESTART from one
-of them can throw to this ASSERT's own RESTART-CASE."
-  (cond
-    ((not (consp form)) nil)
-    ((eq (car form) head) form)
-    (t (some (lambda (sub) (%find-call-in-form head sub)) form))))
 
 (deftest assert-failure-body-contains-cerror
   "ASSERT failure body contains a CERROR call for interactive restart."
@@ -172,7 +159,7 @@ of them can throw to this ASSERT's own RESTART-CASE."
                        '(with-package-iterator (next (list user) :internal :external :inherited)
                           (next)))))
         (assert-true
-         (%tree-contains-head-p 'cl-cc/expand::%package-iterator-entries expanded))
+         (%tree-contains-head-p 'cl-cc/expand/expander:%package-iterator-entries expanded))
         (assert-equal
          expected
          (mapcar (lambda (entry)
@@ -180,7 +167,7 @@ of them can throw to this ASSERT's own RESTART-CASE."
                      (list (cl-cc/runtime:rt-symbol-name sym)
                            type
                            (cl-cc/runtime:rt-package-name pkg))))
-                 (cl-cc/expand::%package-iterator-entries
+                 (cl-cc/expand/expander:%package-iterator-entries
                   (list user)
                   '(:internal :external :inherited))))))))
 

@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-basic-setf-tests.lisp
 ;;;; Coverage tests for src/expand/macros-basic.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macros-basic-setf-suite
   :description "Tests for macros-basic.lisp: setf places"

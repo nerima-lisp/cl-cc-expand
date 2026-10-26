@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-setf-tests.lisp — Setf expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite expander-setf-suite :description "Setf expander unit tests"
   :parent cl-cc-unit-suite)
@@ -24,7 +24,7 @@
 
 (deftest expander-setf-aref-to-aset
   "compiler-macroexpand-all: (setf (aref v i) val) expands to (aset ...)."
-  (let ((result (assert-expansion-head '(setf (aref v i) val) 'cl-cc/expand::aset)))
+  (let ((result (assert-expansion-head '(setf (aref v i) val) 'cl-cc/expand/places::aset)))
     (assert-eq 'v (second result))
     (assert-eq 'i (third result))
     (assert-eq 'val (fourth result))))

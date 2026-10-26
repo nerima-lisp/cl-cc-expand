@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-basic-list-tests.lisp
 ;;;; Coverage tests for src/expand/macros-basic.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-basic-list-suite
   :description "Tests for macros-basic.lisp: list"

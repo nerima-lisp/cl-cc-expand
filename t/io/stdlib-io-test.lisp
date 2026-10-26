@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-stdlib-io-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/io/test)
 
 (defsuite
   macros-stdlib-io-suite
@@ -12,7 +12,7 @@
 (defbefore
   :each
   (macros-stdlib-io-suite)
-  (clrhash cl-cc/expand::*load-time-value-cache*)
+  (clrhash cl-cc/expand/expander:*load-time-value-cache*)
   (setf cl-cc/expand:*macro-eval-fn* #'eval))
 
 (in-suite macros-stdlib-io-suite)

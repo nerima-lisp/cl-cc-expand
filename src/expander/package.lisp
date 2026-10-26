@@ -1,126 +1,166 @@
-;;;; packages/expand/src/package.lisp --- cl-cc/expand package definition
-;;;;
-;;;; Macro expansion subsystem: macro environment, defmacro machinery,
-;;;; macroexpansion (our-macroexpand-1/-all), lambda-list parsing and
-;;;; destructuring, and the LOOP/DO/CASE/TYPECASE control-flow macros.
-;;;;
-;;;; Uses cl-cc/bootstrap so source files can reference our-eval unqualified.
-;;;; cl-cc/type is accessed qualified (cl-cc/type:...) so not in :use.
-
-(defpackage :cl-cc/expand
-  (:use :cl :cl-cc/bootstrap)
-  (:shadow #:compiler-macro-function #:diagnostic)
-  (:export
-   ;; --- expander-data.lisp --- constant table + accessor/struct maps -----
-   #:*constant-table*
-    #:*accessor-slot-map*
-     #:*defstruct-read-only-accessor-map*
-     #:*defstruct-slot-registry*
-     #:*defstruct-type-registry*
-     #:*defstruct-predicate-registry*
-     #:*setf-compound-place-handlers*
-      #:*declaim-inline-registry*
-     #:*declaim-optimize-registry*
-     #:*global-proclamations*
-     #:with-fresh-defstruct-registries
-     #:declaration-optimize-quality
-
-   ;; --- expander-core.lisp --- macro expander construction -------------
-   #:make-macro-expander
-
-   ;; --- macro.lisp --- macro environment + expansion engine -----------
-   #:macro-env
-   #:macro-env-table
-   #:our-defmacro
-   #:our-macroexpand-1
-   #:our-macroexpand
-   #:our-macroexpand-all
-   #:register-macro
-   #:lookup-macro
-   #:*macro-environment*
-   #:*macro-eval-fn*
-   #:*symbol-macro-table*
-    #:*compiler-macro-table*
-    #:*deftransform-table*
-    #:register-deftransform
-    #:lookup-deftransform
-    #:deftransform
-    #:define-deftransform
-    #:*macroexpand-step-cache*
-    #:*macroexpand-all-cache*
-
-    ;; --- macro-lambda-list.lisp --- lambda-list helpers ----------------
-   #:parse-lambda-list
-   #:destructure-lambda-list
-   #:generate-lambda-bindings
-
-   ;; --- expander.lisp --- compiler macro expansion --------------------
-    #:compiler-macroexpand-all
-
-   ;; --- control-flow macros ------------------------------------------
-    #:dolist
-    #:dotimes
-    #:do
-   #:do*
-   #:case
-    #:typecase
-    #:loop
-    #:likely
-    #:unlikely
-
-   ;; --- expander-typed-params.lisp --- typed lambda-list helpers ----------
-   #:*function-type-registry*
-   #:register-function-type
-   #:lambda-list-has-typed-p
-   #:strip-typed-params
-   #:lambda-list-info-environment
-
-   ;; --- macros used via run-string (need umbrella re-export) ---------
-   #:defun/c
-   #:copy-hash-table
-   #:copy-structure
-   #:make-iterator
-   #:iterator-next
-   #:doiterator
-   #:with-iterator
-   ;; --- hygienic macros (FR-804/805) ---------------------------------
-   #:define-syntax
-   #:syntax-rules
-   #:with-gensyms
-   #:once-only
-   ;; --- lazy evaluation (FR-856/857) ---------------------------------
-   #:promise
-   #:promisep
-   #:%make-promise
-   #:force
-   #:delay
-   #:memoize
-   #:memoize-stats
-   #:memoize-clear
-   #:*memoize-registry*
-   ;; --- FR-130: perfect hash tables (exported for testing) -------------
-    #:*compiler-special-forms-table*
-    #:*all-builtin-names-table*
-    #:*binary-builtins-table*
-    #:*unary-builtins-table*
-    #:*variadic-fold-builtins-table*
-    #:*variadic-fold-or-list-table*
-
-   ;; --- macros-package-system.lisp --- package-system runtime bridge ----
-   ;; Reached (as cl-cc/expand::rt-use-package /
-   ;; cl-cc/expand::add-package-local-nickname) from
-   ;; packages/selfhost/src/pipeline-selfhost.lisp's host-bridge
-   ;; registration table.
-   #:rt-use-package
-   #:add-package-local-nickname
-
-   ;; --- macros-runtime-support.lisp / runtime-stdlib-3-expander.lisp ---
-   ;; declaim-clause recording, reached (as cl-cc/expand::%record-declaim-*)
-   ;; from packages/stdlib/src/stdlib-source.lisp's self-hosted PROCLAIM
-   ;; definition. Prefix kept as-is; these are still implementation
-   ;; details, just visible ones.
-   #:%record-declaim-inline-clause
-   #:%record-declaim-optimize-clause
-   #:%record-declaim-type-clause
-   #:%record-declaim-ftype-clause
-   #:%record-declaim-special-clause))
+(defpackage :cl-cc/expand/expander
+            (:use :cl :cl-cc/bootstrap)
+            (:shadow #:compiler-macro-function #:diagnostic)
+            (:import-from :cl-cc/expand/binding
+                          #:parse-lambda-list
+                          #:destructure-lambda-list
+                          #:generate-lambda-bindings
+                          #:lambda-list-info-required
+                          #:lambda-list-info-optional
+                          #:lambda-list-info-rest
+                          #:lambda-list-info-key-params
+                          #:lambda-list-info-aux
+                          #:lambda-list-info-body
+                          #:lambda-list-info-whole
+                          #:lambda-list-info-environment
+                          #:expand-lambda-list-defaults
+                          #:lambda-list-has-typed-p
+                          #:strip-typed-params
+                          #:register-function-type
+                          #:*function-type-registry*
+                          #:*compiler-local-function-names*
+                          #:%normalize-let-bindings
+                          #:%collapse-empty-binding-body
+                          #:set-recursive-expander
+                          #:register-binding-expanders
+                          #:%proper-list-p)
+            (:export #:*constant-table*
+                     #:*accessor-slot-map*
+                     #:*defstruct-read-only-accessor-map*
+                     #:*defstruct-slot-registry*
+                     #:*defstruct-type-registry*
+                     #:*defstruct-predicate-registry*
+                     #:*setf-compound-place-handlers*
+                     #:*declaim-inline-registry*
+                     #:*declaim-optimize-registry*
+                     #:*global-proclamations*
+                     #:with-fresh-defstruct-registries
+                     #:declaration-optimize-quality
+                     #:make-macro-expander
+                     #:macro-env
+                     #:macro-env-table
+                     #:our-defmacro
+                     #:our-macroexpand-1
+                     #:our-macroexpand
+                     #:our-macroexpand-all
+                     #:register-macro
+                     #:lookup-macro
+                     #:*macro-environment*
+                     #:*macro-eval-fn*
+                     #:*symbol-macro-table*
+                     #:*compiler-macro-table*
+                     #:*deftransform-table*
+                     #:register-deftransform
+                     #:lookup-deftransform
+                     #:deftransform
+                     #:define-deftransform
+                     #:*macroexpand-step-cache*
+                     #:*macroexpand-all-cache*
+                     #:compiler-macroexpand-all
+                     #:defun/c
+                     #:define-syntax
+                     #:syntax-rules
+                     #:with-gensyms
+                     #:once-only
+                     #:promise
+                     #:promisep
+                     #:%make-promise
+                     #:force
+                     #:delay
+                     #:memoize
+                     #:memoize-stats
+                     #:memoize-clear
+                     #:*memoize-registry*
+                     #:*compiler-special-forms-table*
+                     #:*all-builtin-names-table*
+                     #:*binary-builtins-table*
+                     #:*unary-builtins-table*
+                     #:*variadic-fold-builtins-table*
+                     #:*variadic-fold-or-list-table*
+                     #:%record-declaim-inline-clause
+                     #:%record-declaim-optimize-clause
+                     #:%record-declaim-type-clause
+                     #:%record-declaim-ftype-clause
+                     #:%record-declaim-special-clause
+                     #:likely
+                     #:unlikely
+                     #:copy-hash-table
+                     #:define-expander-for
+                     #:register-expander-handler
+                     #:*expander-head-table*
+                     #:invoke-registered-expander
+                     #:%expander-form
+                     #:expand-make-array-form
+                     #:expand-setf-accessor
+                     #:expand-eval-when-form
+                     #:expand-macrolet-form
+                     #:expand-typed-defun-or-lambda
+                     #:register-defclass-accessors
+                     #:expand-defclass-slot-spec
+                     #:%build-setf-progn-forms
+                     #:%type-error-form
+                     #:%strip-docstring
+                     #:%extract-docstring
+                     #:compiler-special-form-p
+                     #:builtin-name-p
+                     #:reduce-variadic-op
+                     #:variadic-fold-identity
+                     #:string-concat
+                     #:%bootstrap-macro-eval
+                     #:%cache-all-result
+                     #:%cacheable-macroexpansion-p
+                     #:%compiler-macro-lambda-list-parts
+                     #:%contains-uninterned-symbol-p
+                     #:%current-target-backend
+                     #:*target-backend*
+                     #:%expander-descriptor-p
+                     #:%maybe-postprocess-expansion
+                     #:%package-iterator-entries
+                     #:%sequence-build-car-args
+                     #:%sequence-build-cdr-args
+                     #:%sequence-build-multi-map-form
+                     #:%sequence-build-multi-quantifier-form
+                     #:%sequence-build-null-test
+                     #:%sequence-build-single-map-form
+                     #:%sequence-build-single-quantifier-form
+                     #:%step-cache-and-return
+                     #:%wasm-js-await
+                     #:%wasm-js-catch
+                     #:%wasm-promise-reference-p
+                     #:*all-builtin-names*
+                     #:*binary-builtins*
+                     #:*cxr-builtins*
+                     #:*unary-builtins*
+                     #:*variadic-fold-builtins*
+                     #:*load-time-value-cache*
+                     #:aset
+                     #:await
+                     #:our-eval
+                     #:packet-id
+                     #:%loop-
+                     #:expand-apply-named-fn
+                     #:make-compiler-macro-expander
+                     #:compiler-macro-function
+                     #:diagnostic
+                     #:%defstruct-parse-slot
+                     #:%defstruct-find-option
+                     #:%defstruct-default-conc-name
+                     #:%defstruct-default-constructor-name
+                     #:%defstruct-default-predicate-name
+                     #:%defstruct-default-copier-name
+                     #:%defstruct-resolve-slot-values
+                     #:%defstruct-accessor-name
+                     #:%defstruct-make-keyword
+                     #:syntax-rules-expander
+                     #:expand-syntax-rules
+                     #:*syntax-rules-registry*
+                     #:syntax-case
+                     #:match-pattern
+                     #:build-template
+                     #:compile-pattern-decision-tree
+                     #:check-pattern-usefulness
+                     #:pattern-subsumes-p
+                     #:*trmc-enabled*
+                     #:trmc-optimize-form
+                     #:*join-points-enabled*
+                     #:introduce-join-points #:%defstruct-build-model))

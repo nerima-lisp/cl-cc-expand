@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/array-predicate-expansion-tests.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite array-predicate-expansion-suite
   :description "Tests for direct array predicate expansion"

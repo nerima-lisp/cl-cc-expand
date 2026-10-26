@@ -21,77 +21,125 @@
   :homepage "https://github.com/nerima-lisp/cl-cc-expand"
   :bug-tracker "https://github.com/nerima-lisp/cl-cc-expand/issues"
   :source-control (:git "https://github.com/nerima-lisp/cl-cc-expand.git")
-  ;; cl-host-kit supplies the one host operation this system performs:
-  ;; HOST-KIT:GETENV, read by %CURRENT-TARGET-BACKEND in
-  ;; src/macros-stdlib.lisp for the CLCC_TARGET_BACKEND override. It replaces
-  ;; a UIOP:GETENV call that was never declared here at all (UIOP happened to
-  ;; be present because ASDF ships it), so this line also closes an
-  ;; undeclared-dependency gap rather than only swapping one name for another.
   :depends-on ("cl-cc-bootstrap" "cl-cc-type" "cl-cc-vm" "cl-host-kit")
+  :in-order-to ((test-op (test-op "cl-cc-expand/test")))
   :pathname "src"
   :serial t
   :components
-  ((:file "package")
-   (:file "macro-lambda-list")   ; shared lambda-list parsing + destructuring helpers
-   (:file "macro")
-   (:file "macro-expansion")     ; macroexpand, quasiquote, our-defmacro, VM hooks
-   (:file "syntax-rules")        ; core: macro-env, defmacro machinery, macroexpansion
-   (:file "macros-basic")        ; bootstrap: check-type/setf/list + value helpers
-   (:file "macros-control-flow") ; bootstrap control-flow macros (when/unless/cond/do*)
-   (:file "macros-control-flow-case") ; case/typecase macro expansion
-   (:file "macros-mutation")     ; push/pop/incf/decf split from stdlib
-   (:file "loop-data")           ; LOOP: grammar tables
-   (:file "loop-parser-for")     ; LOOP: token predicates, CPS utils, FOR sub-parsers
-   (:file "loop-parser")         ; LOOP: CPS token parser → IR plist
-   (:file "loop-emitters")       ; LOOP: registration macros + accumulation emitters
-   (:file "loop-iter-emitters")  ; LOOP: iteration + condition emitters
-   (:file "loop")                ; LOOP: generator — assembles tagbody from IR
-   (:file "macros-setops")       ; list/set operations split from stdlib
-   (:file "macros-list-utils")   ; ordering and list utility helpers
-   (:file "macros-restarts")     ; restart/condition protocol split from stdlib
-   (:file "macros-introspection") ; equalp and introspection helpers
-   (:file "macros-iterator")      ; FR-839 iterator protocol
-   (:file "macros-stdlib")       ; stdlib: numeric/control macros (1+, ecase, rotatef...)
-   (:file "macros-stdlib-ansi")  ; ANSI CL Phase 1 (psetf, assert, define-condition...)
-   (:file "macros-stdlib-utils") ; list/tree/string/array utility macros
-   (:file "macros-cxr")          ; algorithmic CXR accessor registration
-   (:file "macros-hof")          ; higher-order list/search helpers (map/find/remove)
-   (:file "macros-hof-search")   ; position/count/assoc search HOFs
-   (:file "macros-filesystem")   ; file/IO/runtime helpers split from stdlib
-   (:file "macros-sequence")     ; sequences: copy/fill/replace/mismatch/delete/substitute
-   (:file "macros-sequence-fold") ; sequences: reduce/nsubstitute/map-into/merge/last/search
-   (:file "macros-sequence-helpers")  ; list/sequence helper macros split from stdlib
-   (:file "macros-plist")        ; property list helpers
-   (:file "macros-package-system") ; package system and symbol-iteration macros
-   (:file "macros-runtime-support") ; declarations, IO/hash/coerce/LTV/feature runtime macros
-   (:file "macros-clos-protocol")  ; CLOS protocol: print-unreadable-object, describe, change-class
-   (:file "macros-mop-support")   ; MOP introspection macros + parse-float + reinitialize-instance
-   (:file "expander-data")       ; expander: grammar tables + dispatch table declarations
-   (:file "runtime-stdlib-3-expander") ; runtime-stdlib-3 expander-side proclamations
-   (:file "deftransform")        ; deftransform: type-specialized compile-time transforms
-   (:file "expander-helpers")    ; expander: shared helper functions extracted from expander.lisp
-   (:file "expander-defstruct-copy") ; expander: COPY-STRUCTURE expansion
-   (:file "expander-defstruct-boa")  ; expander: BOA constructors for defstruct
-   (:file "expander-defstruct-typed") ; expander: :TYPE list/vector defstruct forms
-   (:file "expander-defstruct-clos")  ; expander: CLOS-backed defstruct forms
-   (:file "expander-defstruct")       ; expander: defstruct dispatcher
-   (:file "expander-typed-params") ; typed lambda-list helpers + *function-type-registry*
-   (:file "expander-core")
-   (:file "expander-definitions-helpers") ; expander: lambda-list default expansion helper
-   (:file "expander-control-helpers") ; expander: binding helpers for control forms
-   (:file "expander-setf-places-helpers") ; expander: setf-place cons access helper
-   (:file "expander-setf-places") ; expander: setf compound-place registration table
-   (:file "expander")
-   (:file "expander-definitions-forms")
-   (:file "expander-basic")      ; core application handlers split from expander.lisp
-   (:file "expander-definitions")
-   (:file "expander-control")
-   (:file "expander-tail")
-   (:file "expander-numeric")
-   (:file "expander-sequence")
-   (:file "macros-lazy")          ; FR-856 delay/force, FR-857 memoize
-   ;; ── Phase 131: Pattern Matching Optimization ──
-   (:file "pattern-opt-131")))
+  ((:file "binding/package")
+   (:file "expander/package")
+   (:file "control/package")
+   (:file "conditions/package")
+   (:file "iteration/package")
+   (:file "structures/package")
+   (:file "places/package")
+   (:file "clos/package")
+   (:file "sequences/package")
+   (:file "io/package")
+   (:file "lists-and-sets/package")
+   (:file "package")
+   (:module "binding"
+    :serial t
+    :components
+    ((:file "macro-lambda-list")
+     (:file "registration")
+     (:file "control-support")
+     (:file "control")
+     (:file "definitions-support")
+     (:file "typed-params")))
+   (:module "expander-kernel"
+    :pathname "expander"
+    :serial t
+    :components
+    ((:file "macro")
+     (:file "macro-expansion")
+     (:file "syntax-rules")
+     (:file "data")
+     (:file "deftransform")
+     (:file "expansion-support")
+     (:file "core")
+     (:file "handler-registry")
+     (:file "expander")
+     (:file "binding-integration")
+     (:file "runtime-support")
+     (:file "runtime-stdlib-3-expander")))
+   (:module "structures-core"
+    :pathname "structures"
+    :serial t
+    :components
+    ((:file "clos-hook")
+     (:file "defstruct-boa")
+     (:file "defstruct-copy")
+     (:file "defstruct-typed")))
+   (:module "clos"
+    :serial t
+    :components
+    ((:file "defstruct-clos")
+     (:file "register-struct-expansion")
+     (:file "clos-protocol")
+     (:file "mop-support")))
+   (:module "structures-dispatcher"
+    :pathname "structures"
+    :serial t
+    :components ((:file "defstruct")))
+   (:module "control"
+    :serial t
+    :components ((:file "control-flow") (:file "control-flow-case")))
+   (:module "conditions"
+    :serial t
+    :components ((:file "restarts")))
+   (:module "iteration"
+    :serial t
+    :components
+    ((:file "loop-data")
+     (:file "loop-parser-for")
+     (:file "loop-parser")
+     (:file "loop-emitters")
+     (:file "loop-iter-emitters")
+     (:file "loop")
+     (:file "iterator")
+     (:file "package-system")))
+   (:module "places"
+    :serial t
+    :components
+    ((:file "basic")
+     (:file "mutation")
+     (:file "setf-place-support")
+     (:file "setf-places")))
+   (:module "sequences"
+    :serial t
+    :components
+    ((:file "sequence")
+     (:file "sequence-fold")
+     (:file "sequence-support")
+     (:file "hof")
+     (:file "hof-search")))
+   (:module "io"
+    :serial t
+    :components ((:file "filesystem")))
+   (:module "lists-and-sets"
+    :serial t
+    :components
+    ((:file "cxr")
+     (:file "setops")
+     (:file "list-operations")
+     (:file "plist")
+     (:file "introspection")))
+   (:module "expander-stdlib"
+    :pathname "expander"
+    :serial t
+    :components
+    ((:file "basic")
+     (:file "definitions-forms")
+     (:file "definitions")
+     (:file "numeric")
+     (:file "tail")
+     (:file "sequence")
+     (:file "stdlib")
+     (:file "stdlib-ansi")
+     (:file "stdlib-common")
+     (:file "lazy")
+     (:file "pattern-opt-131")))))
 
 (defsystem "cl-cc-expand/test"
   :description "Test system for cl-cc-expand, running under cl-weave."
@@ -105,88 +153,88 @@
   :depends-on ("cl-cc-expand" "cl-weave")
   :pathname "t"
   :serial t
-  :components ((:file "package")
-    (:file "macro-test")
-    (:file "macro-definition-test")
-    (:file "macro-assignment-test")
-    (:file "macro-multiple-value-test")
-    (:file "macros-control-flow-test")
-    (:file "macros-control-flow-loop-test")
-    (:file "macro-lambda-list-test")
-    (:file "expander-lambda-list-defaults-test")
-    (:file "expander-core-test")
-    (:file "expander-data-test")
-    (:file "expander-test-support")
-    (:file "expander-basic-test")
-    (:file "macros-basic-check-type-test")
-    (:file "macros-basic-list-test")
-    (:file "macros-basic-setf-test")
-    (:file "macros-basic-mvb-test")
-    (:file "macros-mutation-test")
-    (:file "expander-setf-test")
-    (:file "expander-setf-places-test")
-    (:file "expander-control-test")
-    (:file "expander-array-test")
-    (:file "expander-typed-test")
-    (:file "expander-typed-params-test")
-    (:file "expander-defclass-test")
-    (:file "expander-binding-test")
-    (:file "expander-control-helpers-test")
-    (:file "expander-definitions-function-test")
-    (:file "expander-definitions-forms-test")
-    (:file "expander-definitions-type-test")
-    (:file "expander-definitions-rounding-test")
-    (:file "expander-definitions-constant-test")
-    (:file "expander-definitions-test")
-    (:file "expander-numeric-test")
-    (:file "expander-comparison-test")
-    (:file "expander-definitions-helpers-test")
-    (:file "expander-helpers-test")
-    (:file "expander-sequence-test")
-    (:file "expander-setf-places-helpers-test")
-    (:file "expander-tail-test")
-    (:file "defstruct-test")
-    (:file "expander-defstruct-typed-test")
-    (:file "loop-test")
-    (:file "loop-data-test")
-    (:file "loop-parser-test")
-    (:file "loop-emitters-test")
-    (:file "loop-macro-expansion-test")
-    (:file "loop-macro-expansion-clauses-test")
-    (:file "loop-macro-expansion-errors-test")
-    (:file "macro-rotatef-test")
-    (:file "macro-psetf-test")
-    (:file "macro-shiftf-test")
-    (:file "macro-ecase-test")
-    (:file "macro-etypecase-test")
-    (:file "macro-progv-test")
-    (:file "macro-define-modify-macro-test")
-    (:file "macros-cxr-test")
-    (:file "macros-introspection-test")
-    (:file "macros-list-utils-test")
-    (:file "macros-setops-test")
-    (:file "macros-stdlib-list-set-test")
-    (:file "macros-restarts-test")
-    (:file "macros-stdlib-core-test")
-    (:file "macros-stdlib-test")
-    (:file "macros-stdlib-bind-error-test")
-    (:file "macros-stdlib-sequence-map-test")
-    (:file "macros-stdlib-io-test")
-    (:file "macros-stdlib-ansi-test")
-    (:file "macros-stdlib-utils-test")
-    (:file "macros-filesystem-test")
-    (:file "array-predicate-expansion-test")
-    (:file "macros-runtime-support-test")
-    (:file "macros-clos-protocol-test")
-    (:file "macros-plist-test")
-    (:file "macros-sequence-helpers-test")
-    (:file "macros-hof-test")
-    (:file "macros-hof-search-test")
-    (:file "macros-sequence-test")
-    (:file "syntax-rules-test")
-    (:file "runtime-stdlib-2-expand-test")
-    (:file "runtime-stdlib-3-expander-test")
-    (:file "runtime-stdlib-3-sequence-test"))
+  :components
+  ((:file "package")
+   (:file "expander-test-support")
+   (:module "binding"
+    :serial t
+    :components
+    ((:file "package") (:file "basic-mvb-test") (:file "binding-test")
+     (:file "control-support-test") (:file "definitions-support-test")
+     (:file "lambda-list-defaults-test") (:file "macro-lambda-list-test")
+     (:file "macro-multiple-value-test") (:file "stdlib-bind-error-test") (:file "typed-params-test")))
+   (:module "expander"
+    :serial t
+    :components
+    ((:file "package") (:file "array-predicate-expansion-test")
+     (:file "array-test") (:file "basic-test") (:file "comparison-test")
+     (:file "core-test") (:file "data-test") (:file "definitions-constant-test")
+     (:file "definitions-forms-test")
+     (:file "typed-forms-test") (:file "definitions-function-test")
+     (:file "definitions-rounding-test") (:file "definitions-test")
+     (:file "definitions-type-test") (:file "expansion-support-test")
+     (:file "macro-definition-test") (:file "macro-test") (:file "progv-macro-test") (:file "numeric-test")
+     (:file "runtime-stdlib-2-expand-test")
+     (:file "runtime-stdlib-3-expander-test") (:file "export-surface-test") (:file "runtime-support-test")
+     (:file "sequence-test") (:file "stdlib-ansi-test")
+     (:file "stdlib-core-test") (:file "stdlib-test")
+     (:file "syntax-rules-test") (:file "tail-test")))
+   (:module "control"
+    :serial t
+    :components
+    ((:file "package") (:file "control-flow-loop-test")
+     (:file "control-flow-test") (:file "control-test")
+     (:file "macro-ecase-test") (:file "macro-etypecase-test")))
+   (:module "conditions"
+    :serial t
+    :components
+    ((:file "package") (:file "basic-check-type-test")
+     (:file "restarts-test")))
+   (:module "iteration"
+    :serial t
+    :components
+    ((:file "package") (:file "loop-data-test")
+     (:file "loop-emitters-test") (:file "loop-macro-expansion-test")
+     (:file "loop-macro-expansion-clauses-test")
+     (:file "loop-macro-expansion-errors-test") (:file "loop-parser-test")
+     (:file "loop-test")))
+   (:module "structures"
+    :serial t
+    :components
+    ((:file "package") (:file "defstruct-test")
+     (:file "defstruct-typed-test")))
+   (:module "places"
+    :serial t
+    :components
+    ((:file "package") (:file "basic-setf-test")
+     (:file "macro-assignment-test") (:file "macro-define-modify-macro-test")
+     (:file "macro-psetf-test") (:file "macro-rotatef-test")
+     (:file "macro-shiftf-test") (:file "mutation-test")
+     (:file "setf-place-support-test") (:file "setf-places-test")
+     (:file "setf-test")))
+   (:module "clos"
+    :serial t
+    :components
+    ((:file "package") (:file "clos-protocol-test")
+     (:file "defclass-test")))
+   (:module "sequences"
+    :serial t
+    :components
+    ((:file "package") (:file "hof-search-test") (:file "hof-test")
+     (:file "runtime-stdlib-3-sequence-test")
+     (:file "sequence-support-test") (:file "sequence-test")
+     (:file "stdlib-sequence-map-test")))
+   (:module "io"
+    :serial t
+    :components
+    ((:file "package") (:file "filesystem-test") (:file "stdlib-io-test")))
+   (:module "lists-and-sets"
+    :serial t
+    :components
+    ((:file "package") (:file "basic-list-test") (:file "cxr-test")
+     (:file "introspection-test") (:file "list-operations-test")
+     (:file "plist-test") (:file "setops-test")
+     (:file "stdlib-list-set-test") (:file "stdlib-common-test"))))
   :perform (test-op
     (op system)
     (declare (ignore op system))

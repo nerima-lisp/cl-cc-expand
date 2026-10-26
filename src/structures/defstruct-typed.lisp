@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/structures)
 ;;;; DEFSTRUCT :TYPE list/vector expansion helpers.
 
 ;;; ── List/Vector-based struct expansion (FR-546) ──────────────────────────

@@ -1,4 +1,4 @@
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/conditions/test)
 
 (defsuite macros-restarts-suite
   :description "Restart protocol expansion tests"
@@ -17,4 +17,4 @@
 
 (deftest macros-restarts-compute-restarts-expands
   "COMPUTE-RESTARTS expands to the active-restarts dynamic variable directly."
-  (assert-eq 'cl-cc/expand::*%active-restarts* (our-macroexpand-1 '(compute-restarts))))
+  (assert-eq 'cl-cc/expand/conditions::*%active-restarts* (our-macroexpand-1 '(compute-restarts))))

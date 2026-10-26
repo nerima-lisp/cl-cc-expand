@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-core-tests.lisp — Core expander helper tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-core-suite :description "Core expander helper unit tests"
   :parent cl-cc-unit-suite)
@@ -16,7 +16,7 @@
           ("three-args" '+ '(a b c)  0 '(+ (+ a b) c))
           ("four-args"  '* '(a b c d) 1 '(* (* (* a b) c) d)))
   (op args id expected)
-  (assert-equal expected (cl-cc/expand::reduce-variadic-op op args id)))
+  (assert-equal expected (cl-cc/expand/expander:reduce-variadic-op op args id)))
 
 (deftest-each expand-all-atom-passthrough
   "compiler-macroexpand-all passes atoms (int, string, symbol) through unchanged."
@@ -70,13 +70,13 @@
 After registration, compiler-macroexpand-all dispatches to the new handler."
   (let ((test-head (gensym "EXP-HEAD")))
     ;; Simulate what define-expander-for does at macro expansion
-    (setf (gethash test-head cl-cc/expand::*expander-head-table*)
+    (setf (gethash test-head cl-cc/expand/expander:*expander-head-table*)
           (lambda (form) (list 'was-handled (second form))))
     (unwind-protect
         (let ((result (cl-cc/expand:compiler-macroexpand-all (list test-head 42))))
           (assert-equal 'was-handled (first result))
           (assert-equal 42 (second result)))
-       (remhash test-head cl-cc/expand::*expander-head-table*))))
+       (remhash test-head cl-cc/expand/expander:*expander-head-table*))))
 
 (deftest make-macro-expander-returns-descriptor
   "make-macro-expander returns a descriptor instead of a host closure."
@@ -88,12 +88,12 @@ After registration, compiler-macroexpand-all dispatches to the new handler."
 (deftest expander-handler-returning-same-form-does-not-recurse
   "When a handler returns the identical form (equal), the expander stops recursion."
   (let ((test-head (gensym "STABLE")))
-    (setf (gethash test-head cl-cc/expand::*expander-head-table*)
+    (setf (gethash test-head cl-cc/expand/expander:*expander-head-table*)
           (lambda (form) form))  ; idempotent — returns unchanged
     (unwind-protect
         (let ((form (list test-head 1 2)))
           (assert-equal form (cl-cc/expand:compiler-macroexpand-all form)))
-      (remhash test-head cl-cc/expand::*expander-head-table*))))
+      (remhash test-head cl-cc/expand/expander:*expander-head-table*))))
 
 ;;; ─── defmethod expander handler ──────────────────────────────────────────
 ;;; The defmethod handler is registered by expander.lisp via define-expander-for.

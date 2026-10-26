@@ -12,7 +12,7 @@
 ;;; delete, substitute) are in macros-sequence.lisp (loads before).
 ;;;
 ;;; Load order: after macros-sequence.lisp.
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/sequences)
 
 ;;; REDUCE (FR-500 adjacent): fold a sequence using a binary function
 (register-macro 'reduce

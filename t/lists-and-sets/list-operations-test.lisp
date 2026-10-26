@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-list-utils-tests.lisp — List utility macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-list-utils-suite
   :description "List utility macro tests"

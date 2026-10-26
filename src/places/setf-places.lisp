@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/places)
 
 ;;; ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ;;; Expander — setf compound-place handlers
@@ -184,3 +184,76 @@
               (cons (list (list temp (list 'multiple-value-list value)))
                     (append assignments
                             (list (list 'car temp)))))))))
+
+(in-package :cl-cc/expand/places)
+
+(define-expander-for setf (form)
+  (let ((len (length form)))
+    (if (and (> len 3) (evenp (1- len)))
+        ;; (setf a 1 b 2 ...) → (progn (setf a 1) (setf b 2) ...)
+        (compiler-macroexpand-all
+         (cons 'progn (%build-setf-progn-forms (cdr form))))
+        (if (and (= len 3) (symbolp (second form)))
+            ;; (setf var val) → (setq var val)
+            (compiler-macroexpand-all (list 'setq (second form) (third form)))
+            (if (and (= len 3) (consp (second form)))
+                ;; compound place — table lookup first, then generic accessor, then passthrough
+                (let* ((place   (second form))
+                       (value   (third form))
+                       (handler (gethash (car place) *setf-compound-place-handlers*)))
+                  (if handler
+                      (funcall handler place value)
+                      (if (and (symbolp (car place)) (= (length place) 2))
+                          (expand-setf-accessor place value)
+                          (cons 'setf (mapcar #'compiler-macroexpand-all (cdr form))))))
+                (cons 'setf (mapcar #'compiler-macroexpand-all (cdr form))))))))
+
+(define-expander-for define-setf-expander (form)
+  (let* ((accessor (second form))
+         (lambda-list (third form))
+         (body (cdddr form))
+         (expander-fn (lambda (place)
+                        (values-list
+                         (funcall *macro-eval-fn*
+                                  `(multiple-value-list
+                                    ((lambda ,lambda-list ,@body) ',place)))))))
+    (setf (gethash accessor *setf-compound-place-handlers*)
+          (let ((fn expander-fn))
+            (lambda (place value)
+              (multiple-value-bind (temps vals stores store-form access-form)
+                  (funcall fn place)
+                (declare (ignore access-form))
+                (compiler-macroexpand-all
+                 (list 'let
+                       (append (mapcar #'list temps vals)
+                               (mapcar (lambda (s) (list s value)) stores))
+                       store-form)))))))
+  (list 'quote (second form)))
+
+(define-expander-for defsetf (form)
+  (let ((accessor (second form)))
+    (cond
+      ;; Short form: (defsetf accessor updater)
+      ((and (= (length form) 3) (symbolp (third form)))
+       (let ((updater (third form)))
+         (setf (gethash accessor *setf-compound-place-handlers*)
+               (lambda (place value)
+                 (compiler-macroexpand-all
+                  (cons updater (append (cdr place) (list value))))))))
+      ;; Long form: (defsetf accessor (args...) (store-var) body...)
+      ((and (>= (length form) 5) (listp (third form)) (listp (fourth form)))
+       (let* ((lambda-list (third form))
+              (store-vars (fourth form))
+              (body (cddddr form))
+              (store-var (first store-vars)))
+         (setf (gethash accessor *setf-compound-place-handlers*)
+               (let ((ll lambda-list) (sv store-var) (bd body))
+                 (lambda (place value)
+                    (let* ((arg-bindings (%normalize-let-bindings
+                                          (generate-lambda-bindings ll place)))
+                           (store-binding (list (list sv value))))
+                     (compiler-macroexpand-all
+                      (cons 'let
+                            (cons (append arg-bindings store-binding)
+                                  bd))))))))))
+    (list 'quote accessor)))

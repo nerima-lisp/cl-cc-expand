@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-shiftf-tests.lisp — SHIFTF macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macro-shiftf-suite
   :description "SHIFTF expansion tests"

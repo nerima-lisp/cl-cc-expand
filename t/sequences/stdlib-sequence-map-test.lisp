@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-stdlib-sequence-map-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/sequences/test)
 
 (defsuite macros-stdlib-sequence-map-suite
   :description "Tests for macros-stdlib.lisp: coerce/map/replace/merge"

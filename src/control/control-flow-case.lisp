@@ -4,7 +4,7 @@
 ;;; Depends on macros-control-flow.lisp (our-defmacro, gensym-based environment).
 ;;; Load order: immediately after macros-control-flow.lisp.
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/control)
 
 ;;; CASE macro helpers
 

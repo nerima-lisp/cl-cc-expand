@@ -1,6 +1,6 @@
 ;;; Macro Expansion
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 (defun %step-cache-and-return (form env result expanded-p)
   "Store (expanded-p . result) in the step cache for FORM/ENV and return (values result expanded-p)."

@@ -1,8 +1,9 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/iteration)
 ;;; FR-839: Iteration protocol.
 ;;;
-;;; MAKE-ITERATOR is extensible so FR-838 custom sequence classes can join the
-;;; protocol, while ITERATOR-NEXT stays a small struct-access hot path.
+;;; Sequence-protocol values use the VM's LENGTH and ELT operations; host
+;;; sequences fall back to the corresponding Common Lisp operations. Custom
+;;; sequence classes can join the protocol with MAKE-ITERATOR methods.
 
 (defstruct (iterator (:constructor %make-iterator (sequence state limit next-function)))
   "Iterator protocol object for sequence-like values."

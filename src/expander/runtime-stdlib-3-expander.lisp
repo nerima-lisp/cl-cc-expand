@@ -1,6 +1,6 @@
 ;;; runtime-stdlib-3-expander.lisp — FR-935 proclamation recording
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 (defun %global-proclamation-bucket (kind)
   "Return KIND's proclamation table, creating it on first use."

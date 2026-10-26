@@ -8,7 +8,7 @@
 ;;;; generic-function-method-combination, class-precedence-list, parse-float,
 ;;;; reinitialize-instance, shared-initialize.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/clos/test)
 
 (defsuite macros-clos-protocol-suite
   :description "Tests for CLOS protocol and MOP support macros"
@@ -67,7 +67,7 @@
 (deftest ensure-class-delegates-to-defclass
   "ENSURE-CLASS expands to a DEFCLASS with the given name."
   (let ((result (our-macroexpand-1
-                 '(cl-cc/expand::ensure-class 'my-class :direct-superclasses '(object)))))
+                 '(cl-cc/expand/clos:ensure-class 'my-class :direct-superclasses '(object)))))
     (assert-eq 'defclass (car result))))
 
 ;;; ─── define-method-combination ────────────────────────────────────────────
@@ -98,10 +98,10 @@
 Uses cl-cc: qualified symbols because our-defmacro registers macros under the
 package where they were defined (src is (in-package :cl-cc)), and the test
 package would otherwise intern fresh uninterned lookup keys."
-  :cases (("class-direct-superclasses"    '(cl-cc/expand::class-direct-superclasses cls))
-          ("class-direct-slots"           '(cl-cc/expand::class-direct-slots cls))
-          ("class-slots"                  '(cl-cc/expand::class-slots cls))
-          ("class-direct-default-initargs" '(cl-cc/expand::class-direct-default-initargs cls)))
+  :cases (("class-direct-superclasses"    '(cl-cc/expand/clos:class-direct-superclasses cls))
+          ("class-direct-slots"           '(cl-cc/expand/clos:class-direct-slots cls))
+          ("class-slots"                  '(cl-cc/expand/clos:class-slots cls))
+          ("class-direct-default-initargs" '(cl-cc/expand/clos:class-direct-default-initargs cls)))
   (form)
   (assert-eq 'let (car (our-macroexpand-1 form))))
 
@@ -114,7 +114,7 @@ package would otherwise intern fresh uninterned lookup keys."
 
 (deftest class-direct-superclasses-reads-superclasses-key
   "CLASS-DIRECT-SUPERCLASSES body calls GETHASH with :__superclasses__."
-  (let* ((result (our-macroexpand-1 '(cl-cc/expand::class-direct-superclasses cls)))
+  (let* ((result (our-macroexpand-1 '(cl-cc/expand/clos:class-direct-superclasses cls)))
          (body (cddr result)))
     (assert-true (%tree-contains-keyword-p :__superclasses__ body))))
 
@@ -145,10 +145,10 @@ package would otherwise intern fresh uninterned lookup keys."
 
 (deftest parse-float-expands-to-let
   "PARSE-FLOAT expands to a form that calls FLOAT and READ-FROM-STRING."
-  (let ((result (our-macroexpand-1 '(cl-cc/expand::parse-float "3.14"))))
+  (let ((result (our-macroexpand-1 '(cl-cc/expand/clos:parse-float "3.14"))))
     (assert-true result)))
 
 (deftest parse-float-with-start-uses-subseq
   "PARSE-FLOAT with :start handles substring extraction."
-  (let* ((result (our-macroexpand-1 '(cl-cc/expand::parse-float s 2))))
+  (let* ((result (our-macroexpand-1 '(cl-cc/expand/clos:parse-float s 2))))
     (assert-true result)))

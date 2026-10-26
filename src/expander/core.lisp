@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 (defun chain-comparison-op (op args)
   "Chain a comparison (OP a b c) → (AND (OP a b) (OP b c)).

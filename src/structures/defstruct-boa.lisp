@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/structures)
 ;;;; DEFSTRUCT BOA lambda-list and constructor helpers.
 
 ;;; ── BOA (By-Order-of-Arguments) lambda list helpers ──────────────────────
@@ -55,3 +55,26 @@
                        nconc (list (%defstruct-make-keyword (first slot)) value))))
        (cons 'make-instance
              (cons (%expander-form 'quote class-name) args))))))
+
+(in-package :cl-cc/expand/structures)
+
+(defun %defstruct-boa-bindings (boa-args)
+  "Return normalized BOA binding data for constructor generation."
+  (let ((parts nil)
+        (normal-params nil)
+        (aux-bindings nil)
+        (param-names nil)
+        (bound-names nil)
+        (aux-tail nil)
+        (aux-lets nil)
+        (binding nil))
+    (setq parts (%defstruct-extract-boa-parts boa-args))
+    (setq normal-params (car parts))
+    (setq aux-bindings (cdr parts))
+    (setq param-names (%defstruct-boa-param-names normal-params))
+    (setq bound-names param-names)
+    (dolist (b aux-bindings)
+      (setq bound-names (cons (first b) bound-names)))
+    (setq aux-lets (loop for b in aux-bindings
+                         collect (%expander-form (first b) (second b))))
+    (%expander-form normal-params aux-bindings param-names bound-names aux-lets)))

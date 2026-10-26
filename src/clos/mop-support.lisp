@@ -1,5 +1,5 @@
 ;;;; macros-mop-support.lisp — MOP introspection macros + parse-float + reinitialize-instance
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/clos)
 
 ;;; FR-523〜528: MOP Introspection Macros
 ;;; Class objects in the VM are native CL hash tables with keys like

@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-sequence-tests.lisp
 ;;;; Coverage tests for src/expand/macros-sequence.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/sequences/test)
 
 (defsuite macros-sequence-suite
   :description "Tests for macros-sequence.lisp"

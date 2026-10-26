@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-definitions-rounding-tests.lisp — Definition-form rounding tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-definitions-rounding-suite :description "Definition-form rounding unit tests"
   :parent cl-cc-unit-suite)

@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/binding)
 
 ;;; Lambda List Parsing and Destructuring Helpers
 ;;;

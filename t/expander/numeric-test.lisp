@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-numeric-tests.lisp — Numeric expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-numeric-suite
   :description "Numeric expander unit tests"

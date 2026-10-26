@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-array-tests.lisp — Array expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-array-suite :description "Array expander unit tests"
   :parent cl-cc-unit-suite)
@@ -15,11 +15,11 @@ structure without running the 30s test-level timeout."
           ("fill-pointer" '(:fill-pointer t) "FILL-POINTER"))
   (kwargs expected-keyword)
   (let ((*print-circle* t))
-    (let ((result (cl-cc/expand::expand-make-array-form 10 kwargs)))
+    (let ((result (cl-cc/expand/expander:expand-make-array-form 10 kwargs)))
       (assert-eq 'make-array (car result))
       (assert-true (search expected-keyword (format nil "~S" result))))))
 
 (deftest expand-make-array-simple
   "expand-make-array-form without adjustable keywords expands to (make-array SIZE)."
-  (let ((result (cl-cc/expand::expand-make-array-form 10 nil)))
+  (let ((result (cl-cc/expand/expander:expand-make-array-form 10 nil)))
     (assert-true result)))

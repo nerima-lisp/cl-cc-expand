@@ -1,5 +1,5 @@
 ;;;; macros-package-system.lisp — package system and symbol-iteration macros
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/iteration)
 
 ;;; Package-system macros over the current runtime-registry-backed package layer
 

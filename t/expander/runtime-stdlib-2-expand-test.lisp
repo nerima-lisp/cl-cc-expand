@@ -1,4 +1,4 @@
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite runtime-stdlib-2-expand-suite
   :description "Runtime-stdlib-2 macro expansion scaffold tests"
@@ -17,7 +17,7 @@
   "FR-856: FORCE is idempotent and caches NIL values."
   :timeout 10
   (let* ((calls 0)
-         (promise (cl-cc/expand::%make-promise (lambda () (incf calls) nil) nil nil)))
+         (promise (cl-cc/expand/expander:%make-promise (lambda () (incf calls) nil) nil nil)))
     (assert-true (cl-cc/expand:promisep promise))
     (assert-null (cl-cc/expand:force promise))
     (assert-null (cl-cc/expand:force promise))

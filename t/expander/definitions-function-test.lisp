@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-definitions-function-tests.lisp — Definition-form function tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-definitions-function-suite :description "Definition-form function unit tests"
   :parent cl-cc-unit-suite)

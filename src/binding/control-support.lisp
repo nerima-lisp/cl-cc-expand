@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/binding)
 
 ;;; Helpers used only by expander-control.lisp.
 
@@ -38,7 +38,7 @@ Uninterned symbols (gensyms) are canonicalized so alpha-variant forms share a ke
   ;; Pass every DECLARE through untouched, not just the (ignore form env) shape.
   (if (%declaration-form-p form)
       form
-      (compiler-macroexpand-all form)))
+      (%expand-recursively form)))
 
 (defun %leading-declaration-forms (body)
   "Return the leading (DECLARE ...) forms of BODY, in order."
@@ -67,7 +67,7 @@ which is a declaration scope, in that case."
             (list (car b) init)
             (let ((*let-binding-expansion-stack*
                     (cons key *let-binding-expansion-stack*)))
-              (list (car b) (compiler-macroexpand-all init))))))
+              (list (car b) (%expand-recursively init))))))
       b))
 
 (defun expand-flet-labels-binding (binding)
@@ -77,9 +77,9 @@ which is a declaration scope, in that case."
             (rest (cddr binding)))
         (if (and (consp rest) (symbolp (first rest)) (eq (first rest) '&body))
             (list* (first binding) params
-                   (mapcar #'compiler-macroexpand-all (cdr rest)))
+                   (mapcar #'%expand-recursively (cdr rest)))
             (list* (first binding) params
-                   (mapcar #'compiler-macroexpand-all rest))))
+                   (mapcar #'%expand-recursively rest))))
       binding))
 
 (defun %flet-labels-binding-names (bindings)
@@ -112,7 +112,7 @@ which is a declaration scope, in that case."
   "Expand dynamic APPLY function operands while preserving direct designators."
   (if (%apply-quoted-function-designator-p operand)
       operand
-      (compiler-macroexpand-all operand)))
+      (%expand-recursively operand)))
 
 (defun %expand-apply-form (form)
   "Expand APPLY while preserving final (LIST ...) spreads for FR-044 codegen."
@@ -125,12 +125,12 @@ which is a declaration scope, in that case."
                   (spread (car (last arg-operands))))
               (append (list 'apply
                             (%expand-apply-function-operand function-operand))
-                      (mapcar #'compiler-macroexpand-all leading-args)
+                      (mapcar #'%expand-recursively leading-args)
                       (list (if (%apply-final-list-form-p spread)
                                 (cons (car spread)
-                                      (mapcar #'compiler-macroexpand-all
+                                      (mapcar #'%expand-recursively
                                               (cdr spread)))
-                                (compiler-macroexpand-all spread)))))
+                                (%expand-recursively spread)))))
             (list 'apply (%expand-apply-function-operand function-operand))))
       form))
 
@@ -166,7 +166,7 @@ which is a declaration scope, in that case."
              (mapcar #'expand-let-binding (second form))
              (mapcar #'%expand-let-body-form (cddr form))))
     (t
-     (cons 'let (mapcar #'compiler-macroexpand-all (cdr form))))))
+     (cons 'let (mapcar #'%expand-recursively (cdr form))))))
 
 (defun %expand-flet-or-labels (head form)
   "Expand FLET/LABELS bodies while preserving binding structure."
@@ -185,7 +185,7 @@ which is a declaration scope, in that case."
                        (%with-local-function-expansion-shadows names binding-expander)
                        (funcall binding-expander))
                    (%with-local-function-expansion-shadows names body-expander))))
-      (cons head (mapcar #'compiler-macroexpand-all (cdr form)))))
+      (cons head (mapcar #'%expand-recursively (cdr form)))))
 
 (defun %expand-handler-case-form (form)
   "Expand HANDLER-CASE, including the :NO-ERROR clause lowering."
@@ -197,7 +197,7 @@ which is a declaration scope, in that case."
         (let ((tag (gensym "NO-ERROR-"))
               (ne-vars (second no-error-clause))
               (ne-body (cddr no-error-clause)))
-          (compiler-macroexpand-all
+          (%expand-recursively
            (let ((result-var (if (and ne-vars (car ne-vars)) (car ne-vars) (gensym "R-"))))
              (list 'block tag
                    (list 'let
@@ -213,4 +213,4 @@ which is a declaration scope, in that case."
                          (if ne-body
                              (cons 'progn ne-body)
                              nil))))))
-        (cons 'handler-case (mapcar #'compiler-macroexpand-all (cdr form))))))
+        (cons 'handler-case (mapcar #'%expand-recursively (cdr form))))))

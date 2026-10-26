@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/loop-data-tests.lisp — LOOP data layer unit tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 (defsuite loop-data-suite
   :description "LOOP data layer unit tests"
@@ -15,11 +15,11 @@
           ("finally" "FINALLY")
           ("named"   "NAMED"))
   (kw)
-  (assert-true (member kw cl-cc/expand::*loop-boundary-keywords* :test #'string=)))
+  (assert-true (member kw cl-cc/expand/iteration:*loop-boundary-keywords* :test #'string=)))
 
 (deftest loop-vacuous-truth-conditions-are-the-expected-two-symbols
   "The vacuous-truth condition set is exactly the ANSI LOOP pair."
-  (assert-equal '(:always :never) cl-cc/expand::*loop-vacuous-truth-conditions*))
+  (assert-equal '(:always :never) cl-cc/expand/iteration:*loop-vacuous-truth-conditions*))
 
 (deftest-each loop-accum-keyword-table-maps-canonical-and-ing-forms
   "Canonical and -ING accumulation keywords map to the same internal type."
@@ -28,22 +28,22 @@
           ("summing"    "SUMMING"    :sum)
           ("nconcing"   "NCONCING"   :nconc))
   (kw expected)
-  (assert-eq expected (cdr (assoc kw cl-cc/expand::*loop-accum-keyword-table* :test #'string=))))
+  (assert-eq expected (cdr (assoc kw cl-cc/expand/iteration:*loop-accum-keyword-table* :test #'string=))))
 
 (deftest-each loop-hash-keyword-tables-map-both-spellings
   "HASH-KEYS/HASH-VALUES and USING aliases are registered in the data tables."
-  :cases (("hash-keys"   "HASH-KEYS"  cl-cc/expand::*loop-hash-iter-keywords* :hash-keys)
-          ("hash-values" "HASH-VALUE" cl-cc/expand::*loop-hash-iter-keywords* :hash-values)
-          ("using-key"   "HASH-KEY"   cl-cc/expand::*loop-using-keywords*     :hash-key)
-          ("using-value" "HASH-VALUE" cl-cc/expand::*loop-using-keywords*     :hash-value))
+  :cases (("hash-keys"   "HASH-KEYS"  cl-cc/expand/iteration:*loop-hash-iter-keywords* :hash-keys)
+          ("hash-values" "HASH-VALUE" cl-cc/expand/iteration:*loop-hash-iter-keywords* :hash-values)
+          ("using-key"   "HASH-KEY"   cl-cc/expand/iteration:*loop-using-keywords*     :hash-key)
+          ("using-value" "HASH-VALUE" cl-cc/expand/iteration:*loop-using-keywords*     :hash-value))
   (kw table expected)
   (assert-eq expected (cdr (assoc kw table :test #'string=))))
 
 (deftest-each loop-emitter-dispatch-tables-are-hash-tables
   "The emitter dispatch tables are EQ hash tables ready for registration."
-  :cases (("iter"      cl-cc/expand::*loop-iter-emitters*)
-          ("acc"       cl-cc/expand::*loop-acc-emitters*)
-          ("condition" cl-cc/expand::*loop-condition-emitters*))
+  :cases (("iter"      cl-cc/expand/iteration:*loop-iter-emitters*)
+          ("acc"       cl-cc/expand/iteration:*loop-acc-emitters*)
+          ("condition" cl-cc/expand/iteration:*loop-condition-emitters*))
   (table)
   (assert-true (hash-table-p table))
   (assert-eq 'eq (hash-table-test table)))

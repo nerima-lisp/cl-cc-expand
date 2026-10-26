@@ -8,7 +8,7 @@
 ;;; Depends on macros-hof.lisp (complement, our-defmacro, dolist).
 ;;; Load order: immediately after macros-hof.lisp.
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/sequences)
 
 ;; POSITION: index of first matching element, or nil (with optional sequence keywords)
 (our-defmacro position (item list &key test key test-not start end from-end)

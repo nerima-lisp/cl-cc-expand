@@ -32,3 +32,16 @@
              (%tree-contains-head-p head (car form))
              (%tree-contains-head-p head (cdr form))))
         (t nil)))
+
+(defun %find-call-in-form (head form)
+  "Return the first (HEAD ...) subform of FORM, searching depth-first.
+
+The searches below have to recurse: ASSERT's failure branch is now
+(let ((c ...)) (signal c) (cerror \"Continue.\" c)), so the CERROR call sits a
+level down and its datum is the LET variable rather than the literal. The SIGNAL
+runs HANDLER-BIND's handlers on the guest stack, where an INVOKE-RESTART from one
+of them can throw to this ASSERT's own RESTART-CASE."
+  (cond
+    ((not (consp form)) nil)
+    ((eq (car form) head) form)
+    (t (some (lambda (sub) (%find-call-in-form head sub)) form))))

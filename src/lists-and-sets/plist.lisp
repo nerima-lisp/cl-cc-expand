@@ -1,5 +1,5 @@
 ;;;; macros-plist.lisp — Property list helpers
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/lists-and-sets)
 
 ;;; FR-1201: Property List Macros (getf, remf, get-properties)
 

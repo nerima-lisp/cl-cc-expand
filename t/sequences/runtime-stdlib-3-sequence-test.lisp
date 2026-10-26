@@ -1,6 +1,6 @@
 ;;;; runtime-stdlib-3-sequence-tests.lisp — FR-1076 sequence completion
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/sequences/test)
 
 (defsuite runtime-stdlib-3-sequence-suite
   :description "Runtime stdlib sequence operation completion tests"

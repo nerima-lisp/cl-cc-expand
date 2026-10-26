@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-control-flow-loop-tests.lisp — Loop/do/case/typecase control-flow tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/control/test)
 
 (in-suite macros-control-flow-suite)
 
@@ -150,7 +150,7 @@
 (deftest case-build-eql-chain-empty
   "%case-build-eql-chain with no cases returns the default form."
   (assert-equal 'default-body
-                (cl-cc/expand::%case-build-eql-chain '() 'key 'default-body)))
+                (cl-cc/expand/control:%case-build-eql-chain '() 'key 'default-body)))
 
 (deftest-each case-build-eql-chain-single-key
   "%case-build-eql-chain single-arm: atom and list keys both produce (if (eql ...) ...)."
@@ -158,18 +158,18 @@
           ("list-keys" '(((a b) body-ab)) '(if (or (eql key 'a) (eql key 'b)) (progn body-ab) nil)))
   (cases expected)
   (assert-equal expected
-                (cl-cc/expand::%case-build-eql-chain cases 'key nil)))
+                (cl-cc/expand/control:%case-build-eql-chain cases 'key nil)))
 
 (deftest case-build-eql-chain-otherwise-terminates
   "%case-build-eql-chain stops at 'otherwise and emits (progn body)."
-  (let ((result (cl-cc/expand::%case-build-eql-chain
+  (let ((result (cl-cc/expand/control:%case-build-eql-chain
                  '((otherwise fallback)) 'key 'default)))
     (assert-equal '(progn fallback) result)))
 
 (deftest case-collect-integer-pairs-extracts-default
   "%case-collect-integer-pairs separates default-form from integer pairs."
   (multiple-value-bind (default pairs integer-only-p)
-      (cl-cc/expand::%case-collect-integer-pairs
+      (cl-cc/expand/control:%case-collect-integer-pairs
        '((1 body-1) (2 body-2) (otherwise fallback)))
     (assert-equal '(progn fallback) default)
     (assert-= 2 (length pairs))
@@ -178,32 +178,32 @@
 (deftest case-collect-integer-pairs-non-integer-flag
   "%case-collect-integer-pairs clears integer-only-p when a non-integer key appears."
   (multiple-value-bind (default pairs integer-only-p)
-      (cl-cc/expand::%case-collect-integer-pairs
+      (cl-cc/expand/control:%case-collect-integer-pairs
        '((1 body-1) (foo body-foo)))
     (declare (ignore default pairs))
     (assert-false integer-only-p)))
 
 (deftest typecase-build-typep-chain-empty
   "%typecase-build-typep-chain with no cases returns nil."
-  (assert-null (cl-cc/expand::%typecase-build-typep-chain '() 'val)))
+  (assert-null (cl-cc/expand/control:%typecase-build-typep-chain '() 'val)))
 
 (deftest typecase-build-typep-chain-single
   "%typecase-build-typep-chain single arm produces (if (typep ...) body nil)."
   (assert-equal '(if (typep val 'string) (progn body-s) nil)
-                (cl-cc/expand::%typecase-build-typep-chain
+                (cl-cc/expand/control:%typecase-build-typep-chain
                  '((string body-s)) 'val)))
 
 (deftest typecase-build-typep-chain-otherwise
   "%typecase-build-typep-chain otherwise arm terminates chain with (progn body)."
   (assert-equal '(progn fallback)
-                (cl-cc/expand::%typecase-build-typep-chain
+                (cl-cc/expand/control:%typecase-build-typep-chain
                  '((otherwise fallback)) 'val)))
 
 (deftest typecase-related-types-p-detects-subtype-links
   "%typecase-related-types-p returns true for known subtype/supertype pairs."
-  (assert-true (cl-cc/expand::%typecase-related-types-p 'integer 'number))
-  (assert-true (cl-cc/expand::%typecase-related-types-p 'number 'integer))
-  (assert-false (cl-cc/expand::%typecase-related-types-p 'string 'symbol)))
+  (assert-true (cl-cc/expand/control:%typecase-related-types-p 'integer 'number))
+  (assert-true (cl-cc/expand/control:%typecase-related-types-p 'number 'integer))
+  (assert-false (cl-cc/expand/control:%typecase-related-types-p 'string 'symbol)))
 
 (deftest typecase-choose-split-index-prefers-low-cross-overlap
   "%typecase-choose-split-index picks boundary minimizing hierarchy cross-links."
@@ -211,5 +211,5 @@
                   (number body-num)
                   (string body-str)
                   (symbol body-sym)))
-         (idx (cl-cc/expand::%typecase-choose-split-index cases)))
+         (idx (cl-cc/expand/control:%typecase-choose-split-index cases)))
     (assert-= 2 idx)))

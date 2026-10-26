@@ -4,7 +4,7 @@
 ;;;; Macros tested: position-if, position-if-not, count-if, count-if-not,
 ;;;; find-if-not, assoc, assoc-if, assoc-if-not, rassoc-if, rassoc-if-not
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/sequences/test)
 
 (in-suite macros-hof-suite)
 

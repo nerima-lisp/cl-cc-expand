@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-basic-tests.lisp — Basic expander form tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-basic-suite
   :description "Basic expander unit tests"
@@ -10,7 +10,7 @@
 
 (deftest expand-apply-named-fn-binary
   "expand-apply-named-fn for a binary builtin (cons) normalises to (apply #'cons ...)."
-  (let ((result (cl-cc/expand::expand-apply-named-fn 'cons 'args)))
+  (let ((result (cl-cc/expand/expander:expand-apply-named-fn 'cons 'args)))
     (assert-eq 'apply (car result))
     (assert-eq 'function (caadr result))
     (assert-eq 'cons (cadadr result))
@@ -18,7 +18,7 @@
 
 (deftest expand-apply-named-fn-variadic-plus
   "expand-apply-named-fn for + keeps APPLY visible to codegen."
-  (let ((result (cl-cc/expand::expand-apply-named-fn '+ 'args)))
+  (let ((result (cl-cc/expand/expander:expand-apply-named-fn '+ 'args)))
     (assert-eq 'apply (car result))
     (assert-eq 'function (caadr result))
     (assert-eq '+ (cadadr result))
@@ -84,7 +84,7 @@ that would trip the expander during recursion."
   (let* ((result (cl-cc/expand:compiler-macroexpand-all
                   '(format nil "x=~A n=~D~%~~" value count)))
          (printed (format nil "~S" result)))
-    (assert-eq 'cl-cc/expand::string-concat (car result))
+    (assert-eq 'cl-cc/expand/expander:string-concat (car result))
     (assert-true (search "STRING-CONCAT" printed))
     (assert-true (search "PRINC-TO-STRING" printed))
     (assert-true (search "WRITE-TO-STRING" printed))

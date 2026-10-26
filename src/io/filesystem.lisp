@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/io)
 
 ;;; ─── File system operations (FR-479) ─────────────────────────────────────────
 ;;; probe-file, rename-file, delete-file, file-write-date, file-author,
@@ -89,16 +89,6 @@
              (*print-length* ,len-g))
          (write-string (write-to-string ,obj-g) ,str-g))
        ,obj-g)))
-
-;;; ─── locally (FR-397) ─────────────────────────────────────────────────────────
-
-(our-defmacro locally (&rest forms)
-  "Evaluate FORMS in a local declaration scope (declarations ignored in cl-cc)."
-  (let ((body (if (and forms (listp (car forms))
-                       (eq (caar forms) 'declare))
-                  (cdr forms)
-                  forms)))
-    `(progn ,@body)))
 
 ;;; ─── documentation / (setf documentation) (FR-607) ─────────────────────────
 ;;; Docstrings are registered at compile time in *documentation-table* (CL-level

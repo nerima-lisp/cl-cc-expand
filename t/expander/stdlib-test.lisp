@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-stdlib-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp (remaining forms)
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macros-stdlib-suite
   :description "Tests for macros-stdlib.lisp: remaining forms"

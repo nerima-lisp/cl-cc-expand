@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/binding)
 
 (defun expand-lambda-list-defaults (params)
   "Expand macro calls in &optional/&key default value positions within PARAMS.
@@ -6,7 +6,7 @@ Leaves required params, lambda-list keywords, and supplied-p vars untouched."
   (let ((in-extended nil))
     (mapcar (lambda (p)
               (cond
-                ((%list-contains-eq p '(&optional &rest &key &allow-other-keys &aux &body &whole))
+                ((%list-contains-equal p '(&optional &rest &key &allow-other-keys &aux &body &whole))
                  (setf in-extended t)
                  p)
                 ((and in-extended (consp p))
@@ -14,7 +14,7 @@ Leaves required params, lambda-list keywords, and supplied-p vars untouched."
                         (initform (cadr p))
                         (supplied-p (caddr p))
                         (expanded-init (and (consp (cdr p))
-                                            (compiler-macroexpand-all initform))))
+                                            (%expand-recursively initform))))
                    (cond
                      ((and (symbolp head) (or (= (length p) 2) (= (length p) 3)))
                       (if supplied-p

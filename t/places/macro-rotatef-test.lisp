@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-rotatef-tests.lisp — Rotatef macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macro-rotatef-suite
   :description "ROTATEF expansion tests"

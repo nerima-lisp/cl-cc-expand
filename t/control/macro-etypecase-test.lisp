@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-etypecase-tests.lisp — ETYPECASE macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/control/test)
 
 (defsuite macro-etypecase-suite
   :description "ETYPECASE expansion tests"

@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-assignment-tests.lisp — Macro assignment tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macro-assignment-suite
   :description "Macro assignment expansion tests"

@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-introspection-tests.lisp — Introspection helper tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-introspection-suite
   :description "Introspection helper unit tests"

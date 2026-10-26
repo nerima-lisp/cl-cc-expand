@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-definition-tests.lisp — Macro definition tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macro-definition-suite
   :description "Macro definition expansion tests"
@@ -59,9 +59,9 @@
 (deftest invoke-registered-expander-supports-descriptor-backed-compiler-macros
   "Descriptor-backed compiler macro expanders still execute through invoke-registered-expander."
   (let ((cl-cc/expand:*macro-eval-fn* #'eval)
-        (expander (cl-cc/expand::make-compiler-macro-expander '(x) '((+ x 1)))))
+        (expander (cl-cc/expand/expander:make-compiler-macro-expander '(x) '((+ x 1)))))
     (assert-equal 3
-                  (cl-cc/expand::invoke-registered-expander expander '(foo 2) nil))))
+                  (cl-cc/expand/expander:invoke-registered-expander expander '(foo 2) nil))))
 
 (deftest invoke-registered-expander-ignores-descriptor-leading-declarations
   "Descriptor-backed macro expanders treat leading declarations as declarations, not calls."
@@ -71,7 +71,7 @@
                     :body ((declare (ignore x))
                            (quote ok)))))
     (assert-equal 'ok
-                  (cl-cc/expand::invoke-registered-expander expander '(declared 1) nil))))
+                  (cl-cc/expand/expander:invoke-registered-expander expander '(declared 1) nil))))
 
 (deftest compiler-macro-function-accesses-registered-expander
   "compiler-macro-function reflects the compiler macro registry."
@@ -79,10 +79,10 @@
         (expander (lambda (form env)
                     (declare (ignore form env))
                     42)))
-    (setf (cl-cc/expand::compiler-macro-function name) expander)
-    (assert-eq expander (cl-cc/expand::compiler-macro-function name))
-    (setf (cl-cc/expand::compiler-macro-function name) nil)
-    (assert-null (cl-cc/expand::compiler-macro-function name))))
+    (setf (cl-cc/expand/expander:compiler-macro-function name) expander)
+    (assert-eq expander (cl-cc/expand/expander:compiler-macro-function name))
+    (setf (cl-cc/expand/expander:compiler-macro-function name) nil)
+    (assert-null (cl-cc/expand/expander:compiler-macro-function name))))
 
 (deftest define-compiler-macro-expands-funcall-function-designator
   "Compiler macros apply to (funcall #'name ...) and see the original &whole form."
@@ -122,10 +122,10 @@
   (let ((form '(define-compiler-macro cached-cm (x) (+ x 2))))
     (let ((cl-cc/expand:*compiler-macro-table* (make-hash-table :test #'eq)))
       (assert-equal '(quote cached-cm) (our-macroexpand-1 form))
-      (assert-true (cl-cc/expand::compiler-macro-function 'cached-cm)))
+      (assert-true (cl-cc/expand/expander:compiler-macro-function 'cached-cm)))
     (let ((cl-cc/expand:*compiler-macro-table* (make-hash-table :test #'eq)))
       (assert-equal '(quote cached-cm) (our-macroexpand-1 form))
-      (assert-true (cl-cc/expand::compiler-macro-function 'cached-cm))
+      (assert-true (cl-cc/expand/expander:compiler-macro-function 'cached-cm))
       (assert-equal 5
                     (cl-cc/expand:compiler-macroexpand-all '(cached-cm 3))))))
 
@@ -143,8 +143,8 @@
                        (list 'quote (list (gensym "NESTED")))
                        form)))
     (if expected
-        (assert-true  (cl-cc/expand::%contains-uninterned-symbol-p test-form))
-        (assert-false (cl-cc/expand::%contains-uninterned-symbol-p test-form)))))
+        (assert-true  (cl-cc/expand/expander:%contains-uninterned-symbol-p test-form))
+        (assert-false (cl-cc/expand/expander:%contains-uninterned-symbol-p test-form)))))
 
 ;;; ─── %cacheable-macroexpansion-p ─────────────────────────────────────────
 
@@ -158,8 +158,8 @@
                        (list (gensym "G") 1 2)
                        form)))
     (if expected
-        (assert-true  (cl-cc/expand::%cacheable-macroexpansion-p test-form))
-        (assert-false (cl-cc/expand::%cacheable-macroexpansion-p test-form)))))
+        (assert-true  (cl-cc/expand/expander:%cacheable-macroexpansion-p test-form))
+        (assert-false (cl-cc/expand/expander:%cacheable-macroexpansion-p test-form)))))
 
 ;;; ─── %expander-descriptor-p ──────────────────────────────────────────────
 
@@ -171,15 +171,15 @@
           ("bare-list"       nil '(foo bar)))
   (expected object)
   (if expected
-      (assert-true  (cl-cc/expand::%expander-descriptor-p object))
-      (assert-false (cl-cc/expand::%expander-descriptor-p object))))
+      (assert-true  (cl-cc/expand/expander:%expander-descriptor-p object))
+      (assert-false (cl-cc/expand/expander:%expander-descriptor-p object))))
 
 ;;; ─── %compiler-macro-lambda-list-parts ──────────────────────────────────
 
 (deftest compiler-macro-lambda-list-plain
   "%compiler-macro-lambda-list-parts passes through a plain lambda list unchanged."
   (multiple-value-bind (ll whole env)
-      (cl-cc/expand::%compiler-macro-lambda-list-parts '(x y z))
+      (cl-cc/expand/expander:%compiler-macro-lambda-list-parts '(x y z))
     (assert-equal '(x y z) ll)
     (assert-null whole)
     (assert-null env)))
@@ -187,7 +187,7 @@
 (deftest compiler-macro-lambda-list-whole
   "%compiler-macro-lambda-list-parts extracts &whole binding and removes it from the list."
   (multiple-value-bind (ll whole env)
-      (cl-cc/expand::%compiler-macro-lambda-list-parts '(&whole w x y))
+      (cl-cc/expand/expander:%compiler-macro-lambda-list-parts '(&whole w x y))
     (assert-equal '(x y) ll)
     (assert-eq 'w whole)
     (assert-null env)))
@@ -195,7 +195,7 @@
 (deftest compiler-macro-lambda-list-environment
   "%compiler-macro-lambda-list-parts extracts &environment binding."
   (multiple-value-bind (ll whole env)
-      (cl-cc/expand::%compiler-macro-lambda-list-parts '(x &environment e))
+      (cl-cc/expand/expander:%compiler-macro-lambda-list-parts '(x &environment e))
     (assert-equal '(x) ll)
     (assert-null whole)
     (assert-eq 'e env)))
@@ -203,7 +203,7 @@
 (deftest compiler-macro-lambda-list-whole-and-environment
   "%compiler-macro-lambda-list-parts handles both &whole and &environment together."
   (multiple-value-bind (ll whole env)
-      (cl-cc/expand::%compiler-macro-lambda-list-parts '(&whole w x &environment e y))
+      (cl-cc/expand/expander:%compiler-macro-lambda-list-parts '(&whole w x &environment e y))
     (assert-equal '(x y) ll)
     (assert-eq 'w whole)
     (assert-eq 'e env)))

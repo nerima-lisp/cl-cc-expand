@@ -1,5 +1,5 @@
 ;;;; macros-control-flow.lisp — Control-flow bootstrap macros
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/control)
 
 ;; ── FR-351: MC/DC Coverage — Dynamic Variables & Runtime Helpers ────────────
 

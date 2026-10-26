@@ -3,7 +3,7 @@
 ;;;; Covers generated structure for list and vector iteration, numeric
 ;;;; iteration, REPEAT, WHILE, INITIALLY, and FINALLY clauses.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 ;;;; Helpers for expansion and error checks.
 ;;;;

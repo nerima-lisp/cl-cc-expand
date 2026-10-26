@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-psetf-tests.lisp — PSETF macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macro-psetf-suite
   :description "PSETF expansion tests"

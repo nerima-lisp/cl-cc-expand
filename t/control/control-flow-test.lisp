@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macros-control-flow-tests.lisp — Macro control-flow tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/control/test)
 
 (defsuite macros-control-flow-suite
   :description "Macro control-flow expansion tests"

@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/structures)
 ;;;; DEFSTRUCT copy-structure expansion and copier generation.
 
 ;;; FR-555: copy-structure — VM structs are hash-tables with :__class__.

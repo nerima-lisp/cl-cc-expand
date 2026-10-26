@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-define-modify-macro-tests.lisp — DEFINE-MODIFY-MACRO tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/places/test)
 
 (defsuite macro-define-modify-macro-suite
   :description "DEFINE-MODIFY-MACRO expansion tests"

@@ -7,7 +7,7 @@
 ;;;; bit-vector-p, simple-string-p, simple-bit-vector-p,
 ;;;; array-element-type, array-in-bounds-p, upgraded-array-element-type.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-stdlib-utils-suite
   :description "Tests for macros-stdlib-utils.lisp: list/tree/string/array utilities"

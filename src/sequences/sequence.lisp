@@ -1,5 +1,5 @@
 ;;;; macros-sequence.lisp — Sequence operations (FR-500)
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/sequences)
 ;;; Phase 3: Sequence Operations (FR-500)
 ;;; ------------------------------------------------------------
 

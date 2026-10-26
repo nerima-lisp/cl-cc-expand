@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-control-helpers-tests.lisp — Control helper tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/binding/test)
 
 (defsuite expander-control-helpers-suite
   :description "Control-form helper unit tests"
@@ -10,11 +10,11 @@
 
 (deftest expand-let-binding-expands-value
   "expand-let-binding macro-expands the value while preserving the binding name."
-  (assert-equal '(x (+ 1 2)) (cl-cc/expand::expand-let-binding '(x (+ 1 2)))))
+  (assert-equal '(x (+ 1 2)) (cl-cc/expand/binding:expand-let-binding '(x (+ 1 2)))))
 
 (deftest expand-flet-labels-binding-expands-body
   "expand-flet-labels-binding expands only the body forms."
-  (let ((result (cl-cc/expand::expand-flet-labels-binding '(foo (x) (1+ x) (1- x)))))
+  (let ((result (cl-cc/expand/binding:expand-flet-labels-binding '(foo (x) (1+ x) (1- x)))))
     (assert-eq 'foo (first result))
     (assert-equal '(x) (second result))
     (assert-equal '((+ x 1) (- x 1)) (cddr result))))
@@ -23,8 +23,8 @@
 
 (deftest any-destructuring-binding-detects-cons-name
   "%ANY-DESTRUCTURING-LET-BINDING-P returns T when any binding has a CONS name."
-  (assert-true  (cl-cc/expand::%any-destructuring-let-binding-p '(((a b) pair) (x 1))))
-  (assert-false (cl-cc/expand::%any-destructuring-let-binding-p '((x 1) (y 2)))))
+  (assert-true  (cl-cc/expand/binding::%any-destructuring-let-binding-p '(((a b) pair) (x 1))))
+  (assert-false (cl-cc/expand/binding::%any-destructuring-let-binding-p '((x 1) (y 2)))))
 
 ;;; ─── %expand-handler-case-form ────────────────────────────────────────────
 

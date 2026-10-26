@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-definitions-constant-tests.lisp — Definition-form constant tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-definitions-constant-suite :description "Definition-form constant unit tests"
   :parent cl-cc-unit-suite)

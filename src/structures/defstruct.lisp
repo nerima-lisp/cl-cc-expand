@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/structures)
 ;;; ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ;;; Expander — DEFSTRUCT Dispatcher
 ;;;
@@ -28,4 +28,9 @@ Supported options:
       (setf (gethash pred-name *defstruct-predicate-registry*) name))
     (if struct-type
         (%defstruct-typed-expansion model)
-        (%defstruct-clos-expansion model))))
+        (funcall *defstruct-clos-expansion* model))))
+
+(in-package :cl-cc/expand/structures)
+
+(define-expander-for defstruct (form)
+  (compiler-macroexpand-all (expand-defstruct form)))

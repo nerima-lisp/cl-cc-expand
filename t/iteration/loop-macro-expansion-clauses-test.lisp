@@ -1,6 +1,6 @@
 ;;;; LOOP clause expansion tests.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 ;;;; :REPEAT and :WITH expansion structure
 

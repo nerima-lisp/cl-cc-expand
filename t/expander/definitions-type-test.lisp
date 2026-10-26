@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-definitions-type-tests.lisp — Definition-form type tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-definitions-type-suite :description "Definition-form type unit tests"
   :parent cl-cc-unit-suite)

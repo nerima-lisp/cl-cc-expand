@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 ;;; ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ;;; Stdlib — List, Tree, String, and Array Utility Macros
 ;;;
@@ -97,7 +97,7 @@
   "Destructive set-exclusive-or (delegates to set-exclusive-or)."
   `(set-exclusive-or ,list1 ,list2 :test ,test))
 
-;;; ─── subst / subst-if / subst-if-not / nsubst* (FR-496, ANSI CL) ───────────
+;;; ─── subst / subst-if / nsubst* (FR-496, ANSI CL) ───────────────────────────
 
 (our-defmacro subst (new old tree &key (test '#'eql))
   "Substitute NEW for occurrences of OLD anywhere in TREE (non-destructive)."
@@ -118,12 +118,6 @@
                         ((consp s) (cons (%sif (car s)) (%sif (cdr s))))
                         (t s))))
          (%sif ,tree)))))
-
-(our-defmacro subst-if-not (new pred tree)
-  "Substitute NEW where PRED is false anywhere in TREE."
-  (let ((p (gensym "P")))
-    `(let ((,p ,pred))
-       (subst-if ,new (lambda (x) (not (funcall ,p x))) ,tree))))
 
 (our-defmacro nsubst (new old tree &key test)
   "Destructively substitute NEW for OLD in TREE (delegates to subst in cl-cc)."

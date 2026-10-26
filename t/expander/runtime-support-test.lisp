@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-runtime-support-tests.lisp
 ;;;; Coverage tests for src/expand/macros-runtime-support.lisp and macros-package-system.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macros-runtime-support-suite
   :description "Tests for runtime support and package-system macros"
@@ -87,6 +87,7 @@
     (assert-true (search "RT-FIND-PACKAGE" result-str))
     (assert-true (search "RT-MAKE-PACKAGE" result-str))
     (assert-true (search "RT-EXPORT" result-str))
+    (%assert-export-surface)
     (assert-false (search "ADD-PACKAGE-LOCAL-NICKNAME" result-str))))
 
 (deftest package-iteration-expands-to-runtime-package-lookup
@@ -108,4 +109,4 @@
   "String-encoded CFFI compatibility aliases are not accepted as macro heads."
   (dolist (name '("CFFI:FOREIGN-FUNCALL" "CFFI::FOREIGN-FUNCALL"))
     (assert-false
-     (cl-cc/expand::lookup-macro (intern name :cl-cc/expand)))))
+     (cl-cc/expand/expander:lookup-macro (intern name :cl-cc/expand)))))

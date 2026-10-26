@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/conditions)
 
 ;;; ─── Restart and condition protocol split from stdlib ───────────────────────
 

@@ -1,7 +1,5 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/places)
 ;;; Built-in Macros for Bootstrap
-
-(defvar *setf-compound-place-handlers* (make-hash-table :test 'eq))
 
 (defparameter *bootstrap-setf-nth-list-accessor-indices*
   '((second . 1)
@@ -27,10 +25,6 @@
 (defun %make-type-error (datum expected-type)
   "Construct a TYPE-ERROR condition with DATUM and EXPECTED-TYPE."
   (make-condition 'type-error :datum datum :expected-type expected-type))
-
-(defun %type-error-form (datum-form expected-type-form)
-  "Return target code for a lightweight TYPE-ERROR condition object."
-  `(list 'type-error :datum ,datum-form :expected-type ,expected-type-form))
 
 (register-macro 'check-type
   (lambda (form env)

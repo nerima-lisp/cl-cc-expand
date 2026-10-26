@@ -1,6 +1,6 @@
 ;;; runtime-stdlib-3-expander-tests.lisp — FR-935 proclamation verification
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite runtime-stdlib-3-expander-suite
   :description "Runtime-stdlib-3 expander FR verification tests"

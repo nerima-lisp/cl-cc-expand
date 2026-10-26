@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;; Defined in expander-data.lisp, but declare it here too so compile-file sees
 ;; the intended dynamic binding even when this file is compiled first.
@@ -97,9 +97,21 @@ Gensym-hygienic expansions are never cached."
 
 (defun register-macro (name expander)
   "Register NAME as a macro with EXPANDER in the global environment.
-EXPANDER may be either a host function or a descriptor consumed by
-`invoke-registered-expander'."
-  (%register-expander (macro-env-table *macro-environment*) name expander))
+Feature-package names use the legacy facade macro key.
+EXPANDER may be a host function or a descriptor consumed by INVOKE-REGISTERED-EXPANDER."
+  (let* ((package (and (symbolp name) (symbol-package name)))
+         (package-name (and package (package-name package)))
+         (prefix "CL-CC/EXPAND/")
+         (registration-name
+           (if (and package-name
+                    (>= (length package-name) (length prefix))
+                    (string= prefix package-name :end2 (length prefix))
+                    (not (search "/TEST" package-name)))
+               (intern (symbol-name name) :cl-cc/expand)
+               name)))
+    (%register-expander (macro-env-table *macro-environment*)
+                        registration-name
+                        expander)))
 
 (defun register-compiler-macro (name expander)
   "Register NAME as a compiler macro expander in the global environment.

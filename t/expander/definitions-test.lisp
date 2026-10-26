@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-definitions-tests.lisp — Definition-form expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-definitions-suite
   :description "Definition-form expander unit tests"
@@ -11,16 +11,16 @@
 (deftest expander-docstring-helpers
   "%strip-docstring and %extract-docstring handle leading documentation strings."
   (let* ((body '("Doc" (foo) (bar)))
-         (stripped (cl-cc/expand::%strip-docstring body)))
+         (stripped (cl-cc/expand/expander:%strip-docstring body)))
     (assert-equal '((foo) (bar)) stripped)
-    (assert-equal "Doc" (cl-cc/expand::%extract-docstring body))))
+    (assert-equal "Doc" (cl-cc/expand/expander:%extract-docstring body))))
 
 (deftest expander-defsetf-short-form-registers-updater
   "defsetf short form registers an updater and rewrites setf to the updater call."
   (let ((accessor 'expander-defsetf-short-accessor)
         (updater 'expander-defsetf-short-updater))
     (cl-cc/expand:compiler-macroexpand-all `(defsetf ,accessor ,updater))
-    (assert-true (gethash accessor cl-cc/expand::*setf-compound-place-handlers*))
+    (assert-true (gethash accessor cl-cc/expand/expander:*setf-compound-place-handlers*))
     (let ((result (cl-cc/expand:compiler-macroexpand-all `(setf (,accessor obj arg) value))))
       (assert-eq updater (car result))
       (assert-equal '(obj arg value) (cdr result)))))
@@ -41,7 +41,7 @@
       (assert-true (search "X-P" printed))
       (assert-true (search "SCALE-P" printed))
       (assert-true (search "NEW-VALUE" printed))
-      (assert-true (gethash accessor cl-cc/expand::*setf-compound-place-handlers*)))))
+      (assert-true (gethash accessor cl-cc/expand/expander:*setf-compound-place-handlers*)))))
 
 (deftest expander-defconstant-populates-constant-table
   "defconstant side-effect: value is stored in *constant-table* for constant folding."

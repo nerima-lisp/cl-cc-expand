@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/loop-emitters-tests.lisp — LOOP emitter layer unit tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 (defsuite loop-emitters-suite
   :description "LOOP emitter layer unit tests"
@@ -21,14 +21,14 @@
    (functionp
     (gethash key
              (ecase table-type
-               (:iter cl-cc/expand::*loop-iter-emitters*)
-               (:acc cl-cc/expand::*loop-acc-emitters*)
-               (:condition cl-cc/expand::*loop-condition-emitters*))))))
+               (:iter cl-cc/expand/iteration:*loop-iter-emitters*)
+               (:acc cl-cc/expand/iteration:*loop-acc-emitters*)
+               (:condition cl-cc/expand/iteration:*loop-condition-emitters*))))))
 
 (deftest loop-iter-emitter-from-produces-boundary-tests
   "The :FROM emitter produces the expected bindings, exit tests, and step form."
   (multiple-value-bind (bindings end-tests pre-body step-forms)
-      (funcall (gethash :from cl-cc/expand::*loop-iter-emitters*)
+      (funcall (gethash :from cl-cc/expand/iteration:*loop-iter-emitters*)
                'i
                '(:from 1 :to 5 :by 2))
     (assert-equal '((i 1)) bindings)
@@ -39,7 +39,7 @@
 (deftest loop-acc-emitter-sum-accumulates-numerically
   "The :SUM emitter initializes and updates a numeric accumulator."
   (multiple-value-bind (body bindings result-form)
-      (funcall (gethash :sum cl-cc/expand::*loop-acc-emitters*)
+      (funcall (gethash :sum cl-cc/expand/iteration:*loop-acc-emitters*)
                'total
                'item
                nil
@@ -52,7 +52,7 @@
 (deftest loop-acc-emitter-collect-adds-implicit-nreverse-only-without-into
   "The :COLLECT emitter only synthesizes an implicit NREVERSE result when INTO is absent."
   (multiple-value-bind (body bindings result-form)
-      (funcall (gethash :collect cl-cc/expand::*loop-acc-emitters*)
+      (funcall (gethash :collect cl-cc/expand/iteration:*loop-acc-emitters*)
                'items
                'item
                nil
@@ -62,7 +62,7 @@
     (assert-equal '((items nil)) bindings)
     (assert-equal '((nreverse items)) result-form))
   (multiple-value-bind (body bindings result-form)
-      (funcall (gethash :collect cl-cc/expand::*loop-acc-emitters*)
+      (funcall (gethash :collect cl-cc/expand/iteration:*loop-acc-emitters*)
                'items
                'item
                nil
@@ -75,7 +75,7 @@
 (deftest loop-iter-emitter-in-with-destructuring-and-by-function
   "The :IN emitter expands destructuring bindings and advances with the BY function."
   (multiple-value-bind (bindings end-tests pre-body step-forms)
-      (funcall (gethash :in cl-cc/expand::*loop-iter-emitters*)
+      (funcall (gethash :in cl-cc/expand/iteration:*loop-iter-emitters*)
                '(a . rest)
                '(:in xs :by next-cell))
     (assert-= 4 (length bindings))
@@ -114,13 +114,13 @@
           ("never" :never 'bad 'done '(when bad (return nil))))
   (type form end-tag expected)
   (assert-equal expected
-                (funcall (gethash type cl-cc/expand::*loop-condition-emitters*)
+                (funcall (gethash type cl-cc/expand/iteration:*loop-condition-emitters*)
                          form
                          end-tag)))
 
 (deftest loop-condition-emitter-thereis-wraps-result-in-a-single-binding
   "The :THEREIS emitter captures the probe result once and returns it when truthy."
-  (let ((form (funcall (gethash :thereis cl-cc/expand::*loop-condition-emitters*)
+  (let ((form (funcall (gethash :thereis cl-cc/expand/iteration:*loop-condition-emitters*)
                        'probe
                        'done)))
     (assert-eq 'let (car form))
@@ -134,7 +134,7 @@
 (deftest loop-condition-emitter-while-emits-goto
   "The :WHILE emitter terminates the loop by jumping to END-TAG."
   (assert-equal '(unless keep-going (go done))
-                (funcall (gethash :while cl-cc/expand::*loop-condition-emitters*)
+                (funcall (gethash :while cl-cc/expand/iteration:*loop-condition-emitters*)
                          'keep-going
                          'done)))
 ;; force rebuild

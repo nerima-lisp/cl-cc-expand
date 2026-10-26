@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-multiple-value-tests.lisp — Macro multiple-value tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/binding/test)
 
 (defsuite macro-multiple-value-suite
   :description "Macro multiple-value expansion tests"

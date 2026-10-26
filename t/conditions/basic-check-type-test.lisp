@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-basic-check-type-tests.lisp
 ;;;; Coverage tests for src/expand/macros-basic.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/conditions/test)
 
 (defsuite macros-basic-check-type-suite
   :description "Tests for macros-basic.lisp: check-type"

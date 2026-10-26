@@ -2,7 +2,7 @@
 ;;; FR-804: define-syntax / syntax-rules with pattern variable hygiene
 ;;; FR-805: with-gensyms / once-only support macros
 
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 ;; ── FR-805 with-gensyms / once-only ────────────────────────────────────
 
@@ -254,8 +254,8 @@ Pattern variables are bound during guard and template evaluation."
 
 ;; ── Exports ─────────────────────────────────────────────────────────────
 
-(export '(define-syntax syntax-rules with-gensyms once-only
+(export (quote (define-syntax syntax-rules with-gensyms once-only
           syntax-rules-expander expand-syntax-rules
           *syntax-rules-registry*
-          syntax-case match-pattern build-template)
-        :cl-cc/expand)
+          syntax-case match-pattern build-template))
+        :cl-cc/expand/expander)

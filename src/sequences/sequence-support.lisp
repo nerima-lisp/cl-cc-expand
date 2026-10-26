@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/sequences)
 
 ;;; List / sequence helper macros split from macros-stdlib.lisp
 

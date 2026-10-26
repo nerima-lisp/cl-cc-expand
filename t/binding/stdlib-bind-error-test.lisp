@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-stdlib-bind-error-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/binding/test)
 
 (defsuite macros-stdlib-bind-error-suite
   :description "Tests for macros-stdlib.lisp: bindings and error helpers"

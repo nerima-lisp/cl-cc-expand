@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-stdlib-list-set-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/lists-and-sets/test)
 
 (defsuite macros-stdlib-list-set-suite
   :description "Tests for macros-stdlib.lisp: list/set/sequence basics"

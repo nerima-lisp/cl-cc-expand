@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/loop-parser-tests.lisp — LOOP parser layer tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 (defsuite loop-parser-suite
   :description "LOOP parser helpers and clause dispatch"
@@ -10,27 +10,27 @@
 
 (deftest loop-kw-p-is-case-insensitive
   "loop-kw-p matches symbols case-insensitively by name."
-  (assert-true (cl-cc/expand::loop-kw-p 'for "FOR"))
-  (assert-true (cl-cc/expand::loop-kw-p 'FoR "for"))
-  (assert-false (cl-cc/expand::loop-kw-p 'collect "FOR")))
+  (assert-true (cl-cc/expand/iteration:loop-kw-p 'for "FOR"))
+  (assert-true (cl-cc/expand/iteration:loop-kw-p 'FoR "for"))
+  (assert-false (cl-cc/expand/iteration:loop-kw-p 'collect "FOR")))
 
 (deftest loop-kw-member-p-recognizes-boundaries
   "loop-kw-member-p recognizes LOOP boundary keywords."
-  (assert-true (cl-cc/expand::loop-kw-member-p 'collect))
-  (assert-true (cl-cc/expand::loop-kw-member-p 'finally))
-  (assert-false (cl-cc/expand::loop-kw-member-p 'foo)))
+  (assert-true (cl-cc/expand/iteration:loop-kw-member-p 'collect))
+  (assert-true (cl-cc/expand/iteration:loop-kw-member-p 'finally))
+  (assert-false (cl-cc/expand/iteration:loop-kw-member-p 'foo)))
 
 (deftest loop-finalize-state-normalizes-reversed-lists
   "finalize-loop-state restores accumulated fields to source order."
-  (let ((state (cl-cc/expand::make-loop-parse-state)))
-    (setf (cl-cc/expand::lps-iterations state) '(b a)
-          (cl-cc/expand::lps-body-forms state) '((body-2) (body-1))
-          (cl-cc/expand::lps-accumulations state) '((:collect 2 nil nil) (:collect 1 nil nil))
-          (cl-cc/expand::lps-conditions state) '((:while b) (:while a))
-          (cl-cc/expand::lps-initially state) '((init-2) (init-1))
-          (cl-cc/expand::lps-finally state) '((fin-2) (fin-1))
-          (cl-cc/expand::lps-loop-name state) 'demo)
-    (let ((result (cl-cc/expand::finalize-loop-state state)))
+  (let ((state (cl-cc/expand/iteration:make-loop-parse-state)))
+    (setf (cl-cc/expand/iteration:lps-iterations state) '(b a)
+          (cl-cc/expand/iteration:lps-body-forms state) '((body-2) (body-1))
+          (cl-cc/expand/iteration:lps-accumulations state) '((:collect 2 nil nil) (:collect 1 nil nil))
+          (cl-cc/expand/iteration:lps-conditions state) '((:while b) (:while a))
+          (cl-cc/expand/iteration:lps-initially state) '((init-2) (init-1))
+          (cl-cc/expand/iteration:lps-finally state) '((fin-2) (fin-1))
+          (cl-cc/expand/iteration:lps-loop-name state) 'demo)
+    (let ((result (cl-cc/expand/iteration:finalize-loop-state state)))
       (assert-equal '(a b) (getf result :iterations))
       (assert-equal '((body-2) (body-1)) (getf result :body))
       (assert-equal '((:collect 1 nil nil) (:collect 2 nil nil))
@@ -42,7 +42,7 @@
 
 (deftest loop-parse-clauses-dispatches-core-clauses
   "parse-loop-clauses builds a plist from representative LOOP clauses."
-  (let ((result (cl-cc/expand::parse-loop-clauses
+  (let ((result (cl-cc/expand/iteration:parse-loop-clauses
                  '(named demo
                    do (print :hello)
                    collect x into xs

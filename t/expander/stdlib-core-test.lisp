@@ -1,7 +1,7 @@
 ;;;; tests/unit/expand/macros-stdlib-core-tests.lisp
 ;;;; Coverage tests for src/expand/macros-stdlib.lisp
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macros-stdlib-core-suite
   :description "Tests for macros-stdlib.lisp: core arithmetic and return forms"
@@ -32,14 +32,14 @@
 
 (deftest fr-217-await-non-wasm-synchronous-fallback
   "AWAIT preserves the form for VM/native synchronous targets."
-  (let ((cl-cc/expand::*target-backend* nil))
+  (let ((cl-cc/expand/expander:*target-backend* nil))
     (assert-equal '(compute-value)
                   (our-macroexpand-1 '(await (compute-value))))))
 
 (deftest fr-217-async-handler-non-wasm-handler-case-fallback
   "ASYNC-HANDLER uses HANDLER-CASE on non-Wasm targets."
-  (let ((cl-cc/expand::*target-backend* nil))
-    (assert-equal '(handler-case (cl-cc/expand::await (compute-value))
+  (let ((cl-cc/expand/expander:*target-backend* nil))
+    (assert-equal '(handler-case (cl-cc/expand/expander:await (compute-value))
                     (error (e) e))
                   (our-macroexpand-1
                    '(async-handler (compute-value)
@@ -47,21 +47,21 @@
 
 (deftest fr-217-await-wasm-lowers-through-js-await-intrinsic
   "AWAIT on Wasm evaluates once and lowers Promise refs through the JS await intrinsic."
-  (let ((cl-cc/expand::*target-backend* :wasm32))
+  (let ((cl-cc/expand/expander:*target-backend* :wasm32))
     (let ((result (our-macroexpand-1 '(await (compute-promise)))))
       (assert-eq 'let (car result))
-      (assert-true (%tree-contains-head-p 'cl-cc/expand::%wasm-promise-reference-p result))
-      (assert-true (%tree-contains-head-p 'cl-cc/expand::%wasm-js-await result)))))
+      (assert-true (%tree-contains-head-p 'cl-cc/expand/expander:%wasm-promise-reference-p result))
+      (assert-true (%tree-contains-head-p 'cl-cc/expand/expander:%wasm-js-await result)))))
 
 (deftest fr-217-async-handler-wasm-lowers-rejection-catch
   "ASYNC-HANDLER on Wasm wires Promise .catch() into condition clauses."
-  (let ((cl-cc/expand::*target-backend* :wasm32))
+  (let ((cl-cc/expand/expander:*target-backend* :wasm32))
     (let ((result (our-macroexpand-1
                    '(async-handler (compute-promise)
                       (error (e) :caught)))))
       (assert-eq 'handler-case (car result))
-      (assert-true (%tree-contains-head-p 'cl-cc/expand::%wasm-js-catch result))
-      (assert-true (%tree-contains-head-p 'cl-cc/expand::await result)))))
+      (assert-true (%tree-contains-head-p 'cl-cc/expand/expander:%wasm-js-catch result))
+      (assert-true (%tree-contains-head-p 'cl-cc/expand/expander:await result)))))
 
 ;;; %CURRENT-TARGET-BACKEND's last resort is $CLCC_TARGET_BACKEND. The
 ;;; uiop->cl-host-kit migration swapped the UIOP:GETENV behind it
@@ -71,14 +71,14 @@
 
 (deftest current-target-backend-reads-env-when-set
   "$CLCC_TARGET_BACKEND supplies the backend when no special variable does."
-  (let ((cl-cc/expand::*target-backend* nil))
+  (let ((cl-cc/expand/expander:*target-backend* nil))
     (host-kit:with-environment-variables (("CLCC_TARGET_BACKEND" "wasm32"))
-      (assert-eq :wasm32 (cl-cc/expand::%current-target-backend)))))
+      (assert-eq :wasm32 (cl-cc/expand/expander:%current-target-backend)))))
 
 (deftest current-target-backend-nil-when-env-unset-or-empty
   "An unset or empty $CLCC_TARGET_BACKEND yields NIL, not a keyword or an error."
-  (let ((cl-cc/expand::*target-backend* nil))
+  (let ((cl-cc/expand/expander:*target-backend* nil))
     (host-kit:with-environment-variables (("CLCC_TARGET_BACKEND" nil))
-      (assert-null (cl-cc/expand::%current-target-backend)))
+      (assert-null (cl-cc/expand/expander:%current-target-backend)))
     (host-kit:with-environment-variables (("CLCC_TARGET_BACKEND" ""))
-      (assert-null (cl-cc/expand::%current-target-backend)))))
+      (assert-null (cl-cc/expand/expander:%current-target-backend)))))

@@ -4,7 +4,7 @@
 ;;;; Macros tested: mapcar, every, some, notany, notevery, find,
 ;;;; position, count, mapcan, stable-sort
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/sequences/test)
 
 (defsuite macros-hof-suite
   :description "Tests for macros-hof.lisp"

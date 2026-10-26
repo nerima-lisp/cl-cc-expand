@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/macro-progv-tests.lisp — PROGV macro tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite macro-progv-suite
   :description "PROGV expansion tests"
@@ -27,7 +27,7 @@
          (bindings (cadr result))
          (saved-binding (third bindings))
          (enter-call (second saved-binding)))
-    (assert-eq (car enter-call) 'cl-cc/expand::%progv-enter)))
+    (assert-eq (car enter-call) 'cl-cc/expand/expander::%progv-enter)))
 
 (deftest progv-body-unwind-structure
   "PROGV body is UNWIND-PROTECT with PROGN body and %progv-exit cleanup."
@@ -38,5 +38,5 @@
          (cleanup     (caddr unwind-form)))
     (assert-eq 'unwind-protect       (car unwind-form))
     (assert-eq 'progn                (car (cadr unwind-form)))
-    (assert-eq 'cl-cc/expand::%progv-exit   (car cleanup))
+    (assert-eq 'cl-cc/expand/expander::%progv-exit   (car cleanup))
     (assert-eq saved-var             (cadr cleanup))))

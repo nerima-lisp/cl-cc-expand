@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/expander)
 
 (defmacro with-fresh-defstruct-registries (&body body)
   "Execute BODY with fresh, thread-local defstruct registry tables.
@@ -95,27 +95,6 @@ or fall back to the runtime slot writer for unknown accessors."
 (defun %defstruct-make-keyword (sym)
   "Return the keyword symbol for SYM."
   (intern (symbol-name sym) "KEYWORD"))
-
-(defun %defstruct-boa-bindings (boa-args)
-  "Return normalized BOA binding data for constructor generation."
-  (let ((parts nil)
-        (normal-params nil)
-        (aux-bindings nil)
-        (param-names nil)
-        (bound-names nil)
-        (aux-tail nil)
-        (aux-lets nil)
-        (binding nil))
-    (setq parts (%defstruct-extract-boa-parts boa-args))
-    (setq normal-params (car parts))
-    (setq aux-bindings (cdr parts))
-    (setq param-names (%defstruct-boa-param-names normal-params))
-    (setq bound-names param-names)
-    (dolist (b aux-bindings)
-      (setq bound-names (cons (first b) bound-names)))
-    (setq aux-lets (loop for b in aux-bindings
-                         collect (%expander-form (first b) (second b))))
-    (%expander-form normal-params aux-bindings param-names bound-names aux-lets)))
 
 (defun %defstruct-resolve-slot-values (all-slots bound-names)
   "Map ALL-SLOTS to effective constructor values: slot-name if bound, else default."
@@ -228,3 +207,9 @@ or fall back to the runtime slot writer for unknown accessors."
                     :print-fn print-fn
                     :print-fn-opt print-fn-opt
                     :derived-classes derived-classes)))
+
+(in-package :cl-cc/expand/expander)
+
+(defun %type-error-form (datum-form expected-type-form)
+  "Return target code for a lightweight TYPE-ERROR condition object."
+  `(list 'type-error :datum ,datum-form :expected-type ,expected-type-form))

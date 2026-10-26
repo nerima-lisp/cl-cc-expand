@@ -1,4 +1,4 @@
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite syntax-rules-suite
   :description "Runtime-stdlib-2 syntax-rules scaffold tests"

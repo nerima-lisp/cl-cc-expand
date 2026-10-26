@@ -1,4 +1,4 @@
-(in-package :cl-cc/expand)
+(in-package :cl-cc/expand/lists-and-sets)
 
 ;;; ─── Ordering and list utility helpers split from stdlib ─────────────────────
 

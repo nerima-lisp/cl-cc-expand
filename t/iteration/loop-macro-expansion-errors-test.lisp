@@ -1,6 +1,6 @@
 ;;;; LOOP clause expansion error tests.
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/iteration/test)
 
 ;;;; Error paths: unknown or malformed clause keywords
 ;;;;

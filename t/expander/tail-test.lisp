@@ -1,6 +1,6 @@
 ;;;; tests/unit/expand/expander-tail-tests.lisp — Tail-form expander tests
 
-(in-package :cl-cc-expand/test)
+(in-package :cl-cc/expand/expander/test)
 
 (defsuite expander-tail-suite
   :description "Tail-form expander unit tests"
