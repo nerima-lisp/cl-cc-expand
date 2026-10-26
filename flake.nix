@@ -99,7 +99,7 @@
     # repository's default branch and would change this build without
     # warning.
     cl-nix-forge = {
-      url = "github:nerima-lisp/cl-nix-forge/v0.6.1";
+      url = "github:nerima-lisp/cl-nix-forge/950a8224940539a97c112a6b872f0ae5b6c115db";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -172,6 +172,7 @@
       # Required, and it must be a path literal rather than `self`: a
       # flake's `self` is string-like and `lib.fileset` refuses it.
       root = ./.;
+      sourceInclude = [ ./t/export-surface.txt ];
 
       meta = {
         description = "Macroexpansion subsystem (macro-env, defmacro, macroexpand, lambda-list, LOOP) for cl-cc, extracted from the monorepo";
@@ -344,61 +345,39 @@
       # Granularity lives here, NOT in extra GitHub Actions jobs: `nix flake
       # check` evaluates each attribute as its own derivation, in parallel,
       # with build caching.
-      extraOutputs =
-        ctx:
-        let
-          pkgs = nixpkgs.legacyPackages.${ctx.system};
-        in
-        {
-          checks = {
-            orphan-tests =
-              pkgs.runCommand "cl-cc-expand-orphan-tests"
-                {
-                  inherit (ctx) src;
-                  nativeBuildInputs = [ pkgs.python3 ];
-                }
-                ''
-                  python3 - "$src" <<'PY'
-                  import re
-                  import sys
-                  from pathlib import Path
-
-                  root = Path(sys.argv[1])
-                  asd = (root / "cl-cc-expand.asd").read_text()
-                  marker = re.search(r'(?m)^\((?:asdf:)?defsystem\s+"cl-cc-expand/test"', asd)
-                  if marker is None:
-                      raise SystemExit("cl-cc-expand/test system is missing")
-
-                  test_system = asd[marker.end():]
-                  next_system = re.search(r'(?m)^[ \t]*\((?:asdf:)?defsystem\b', test_system)
-                  if next_system is not None:
-                      test_system = test_system[:next_system.start()]
-                  components = set(re.findall(r'\(:file\s+"([^"]+)"\)', test_system))
-                  test_root = root / "t"
-                  test_files = sorted(test_root.rglob("*.lisp"))
-                  if not test_files:
-                      raise SystemExit("no Lisp files found under t/")
-
-                  orphans = [
-                      path.relative_to(root)
-                      for path in test_files
-                      if path.relative_to(test_root).with_suffix("").as_posix() not in components
-                  ]
-                  if orphans:
-                      print("Orphan test files:")
-                      for path in orphans:
-                          print(f"  {path}")
-                      raise SystemExit(1)
-
-                  print(f"Checked {len(test_files)} Lisp files under t/: 0 orphan test files.")
-                  PY
-                  touch "$out"
-                '';
-            paredit-lint = paredit-cli.lib.${ctx.system}.mkLintCheck {
-              inherit (ctx) src;
-              name = "cl-cc-expand-paredit-lint";
-            };
+      extraOutputs = ctx: {
+        checks = {
+          feature-lint = ctx.cl.mkFeatureLintCheck {
+            src = ./.;
+            featureDefinitions = "nix/feature-dependencies.sexp";
+            glossary = "docs/src/reference/glossary.md";
+            glossaryHeadingPrefix = "## ";
+            exportSurface = "t/export-surface.txt";
+            mode = "transition";
+            legacyInternalRefs = "t/legacy-internal-refs.sexp";
+            forbiddenNames = [
+              "phases"
+              "misc"
+              "utils"
+              "helpers"
+            ];
+            numberedPrefixes = [
+              "FR-"
+              "W"
+            ];
+            packagePrefix = "cl-cc/expand/";
+            infraSuffix = "/infra";
+          };
+          orphan-tests = ctx.cl.mkOrphanTestCheck {
+            src = ./.;
+            testRoots = [ "t" ];
+            testSystems = [ "cl-cc-expand/test" ];
+          };
+          paredit-lint = paredit-cli.lib.${ctx.system}.mkLintCheck {
+            inherit (ctx) src;
+            name = "cl-cc-expand-paredit-lint";
           };
         };
+      };
     };
 }

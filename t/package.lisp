@@ -11,23 +11,23 @@
   ;; blanket :USE of :cl-cc/expand is not safe here: that package's export
   ;; list itself shadows/re-exports CL-name-colliding symbols (LOOP, DO,
   ;; DO*, CASE, TYPECASE, DOLIST, DOTIMES, COMPILER-MACRO-FUNCTION,
-  ;; DIAGNOSTIC) that would conflict with :CL. Everything else in the test
-  ;; bodies below reaches cl-cc/expand qualified
-  ;; (cl-cc/expand:compiler-macroexpand-all, cl-cc/expand::%loop-... for
-  ;; white-box internals, etc.), matching the monorepo originals verbatim.
+  ;; DIAGNOSTIC) that would conflict with :CL.
+  ;; Other test references stay package-qualified: facade APIs use the
+  ;; :CL-CC/EXPAND package, while feature internals use their owning
+  ;; :CL-CC/EXPAND/<FEATURE> package, for example
+  ;; cl-cc/expand:compiler-macroexpand-all and
+  ;; cl-cc/expand/iteration::%loop-... for white-box internals.
   (:import-from :cl-cc/expand
    #:our-macroexpand-1 #:our-macroexpand #:our-macroexpand-all)
-  (:export #:deftest #:deftest-each #:in-suite #:defsuite #:defbefore
-           #:assert-true #:assert-false #:assert-eq #:assert-eql
-           #:assert-= #:assert-equal #:assert-equalp #:assert-null
-           #:assert-string= #:assert-signals))
+  (:export #:deftest #:deftest-each #:in-suite #:defsuite #:defbefore #:assert-true #:assert-false #:assert-eq #:assert-eql #:assert-= #:assert-equal #:assert-equalp #:assert-null #:assert-string= #:assert-signals #:our-macroexpand-1 #:our-macroexpand #:our-macroexpand-all #:assert-expansion-head #:assert-no-expansion #:assert-form-string-contains #:assert-expanded-string-contains #:assert-form-string-not-contains #:assert-expanded-string-not-contains #:%tree-contains-head-p #:%find-call-in-form))
 
 (in-package :cl-cc-expand/test)
 
 ;;; Test definition shims
 (defun %test-name (designator)
-  (if (stringp designator) designator
-    (string-downcase (string designator))))
+  (if (stringp designator)
+      designator
+      (string-downcase (string designator))))
 
 (defmacro deftest (name &body body)
   "Monorepo deftest -> a single cl-weave sequential test. A leading string
@@ -47,14 +47,14 @@ Syntax: (deftest-each name [docstring] :cases ((label val ...) ...) (var ...) bo
          (vars (first tail))
          (body (rest tail)))
     `(progn
-      ,@(loop for case in cases
-            for label = (first case)
-            for vals = (rest case)
-            collect `(it-sequential
-          ,(format nil "~A ~A" (%test-name base-name) label)
-          (destructuring-bind ,vars (list ,@vals)
-            (declare (ignorable ,@vars))
-            ,@body))))))
+       ,@(loop for case in cases
+               for label = (first case)
+               for vals = (rest case)
+               collect `(it-sequential
+                         ,(format nil "~A ~A" (%test-name base-name) label)
+                         (destructuring-bind ,vars (list ,@vals)
+                           (declare (ignorable ,@vars))
+                           ,@body))))))
 
 (defmacro in-suite (&rest ignored)
   "Suites are a monorepo concept; cl-weave groups by describe. No-op here."
@@ -117,15 +117,14 @@ The suite argument is ignored; the hook applies to the flat test set."
 monorepo framework's own (already-correct) semantics: fails if nothing is
 signaled, and fails if the wrong condition type is signaled."
     `(handler-case (progn
-        ,form
-        (fail
-          "assert-signals: expected ~S to be signaled, but no condition was raised"
-          ',condition-type))
-      (,condition-type ()
-        t)
-      (error (c)
-        (fail
-          "assert-signals: expected ~S but got ~S: ~A"
-          ',condition-type
-          (type-of c)
-          c)))))
+                     ,form
+                     (fail
+                      "assert-signals: expected ~S to be signaled, but no condition was raised"
+                      ',condition-type))
+       (,condition-type ()
+         t)
+       (error (c)
+         (fail "assert-signals: expected ~S but got ~S: ~A"
+               ',condition-type
+               (type-of c)
+               c)))))
