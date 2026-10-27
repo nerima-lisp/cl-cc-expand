@@ -71,7 +71,7 @@ that would trip the expander during recursion."
           ("quoted" '(make-hash-table :test 'eql)))
   (form)
   (let ((result (cl-cc/expand:compiler-macroexpand-all form)))
-    (assert-equal '("CL-CC/VM" "%MAKE-HASH-TABLE-WITH-TEST")
+    (assert-equal '("CL-CC/VM/INTEROP" "%MAKE-HASH-TABLE-WITH-TEST")
                   (list (package-name (symbol-package (car result)))
                         (symbol-name (car result))))
     (assert-true result)))
