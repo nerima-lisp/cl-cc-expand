@@ -151,3 +151,83 @@ detection format can run the test-level 30s timeout."
     (assert-eq 'setq (car (fourth result)))
     (assert-eq 'b (second (fourth result)))
     (assert-eq 'car (car (fifth result)))))
+(deftest expander-setf-readtable-case
+  "(setf (readtable-case table) case) validates and stores the case once."
+  (labels ((expand-and-eval (state)
+             (let ((place-op (gensym "READTABLE-PLACE-"))
+                   (case-op (gensym "READTABLE-CASE-")))
+               (let* ((expanded
+                        (cl-cc/expand:compiler-macroexpand-all
+                         (list 'setf
+                               (list 'readtable-case (list place-op))
+                               (list case-op))))
+                      (quoted-state (list 'quote state))
+                      (replacement-var (gensym "READTABLE-REPLACEMENT-"))
+                      (runtime-form
+                        (list 'flet
+                              (list
+                               (list place-op nil
+                                     (list 'incf
+                                           (list 'gethash :place-count quoted-state 0))
+                                     (list 'gethash :table quoted-state))
+                               (list case-op nil
+                                     (list 'incf
+                                           (list 'gethash :case-count quoted-state 0))
+                                     (list 'let
+                                           (list
+                                            (list replacement-var
+                                                  (list 'gethash
+                                                        :replacement-readtable
+                                                        quoted-state)))
+                                           (list 'when replacement-var
+                                                 (list 'setf
+                                                       'cl-cc/vm/io:*readtable*
+                                                       replacement-var))
+                                           (list 'gethash :new-case quoted-state))))
+                              expanded)))
+                 (values expanded (eval runtime-form))))))
+    (let* ((state (make-hash-table :test #'eq))
+           (table (make-hash-table :test #'eq)))
+      (setf (gethash :table state) table
+            (gethash :new-case state) :downcase)
+      (multiple-value-bind (expanded value) (expand-and-eval state)
+        (assert-eq :downcase value)
+        (assert-eq :downcase (gethash :case table))
+        (assert-= 1 (gethash :place-count state 0))
+        (assert-= 1 (gethash :case-count state 0))
+        (assert-form-string-contains expanded "(SETF (GETHASH :CASE")
+        (assert-form-string-contains expanded "Invalid readtable case")
+        (assert-form-string-contains expanded "CL-CC/VM/IO:*READTABLE*")
+        (assert-form-string-not-contains expanded "SET-READTABLE-CASE")))
+    (let* ((state (make-hash-table :test #'eq))
+           (old-table (make-hash-table :test #'eq))
+           (new-table (make-hash-table :test #'eq)))
+      (setf (gethash :table state) nil
+            (gethash :replacement-readtable state) new-table
+            (gethash :new-case state) :preserve)
+      (let ((cl-cc/vm/io:*readtable* old-table))
+        (multiple-value-bind (expanded value) (expand-and-eval state)
+          (declare (ignore expanded))
+          (assert-eq :preserve value)
+          (assert-eq new-table cl-cc/vm/io:*readtable*)
+          (assert-eq nil (gethash :case old-table))
+          (assert-eq :preserve (gethash :case new-table))
+          (assert-= 1 (gethash :place-count state 0))
+          (assert-= 1 (gethash :case-count state 0)))))
+    (let* ((state (make-hash-table :test #'eq))
+           (table (make-hash-table :test #'eq))
+           (condition nil))
+      (setf (gethash :table state) table
+            (gethash :new-case state) :invalid)
+      (setf condition
+            (handler-case
+                (progn (expand-and-eval state) nil)
+              (error (signaled) signaled)))
+      (assert-eq t (not (null condition)))
+      (assert-eq t
+                 (not (null
+                       (search "Invalid readtable case"
+                               (princ-to-string condition)))))
+      (assert-eq nil (gethash :case table))
+      (assert-= 1 (gethash :place-count state 0))
+      (assert-= 1 (gethash :case-count state 0)))))
