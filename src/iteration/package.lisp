@@ -1,5 +1,6 @@
 (defpackage :cl-cc/expand/iteration
   (:use :cl)
+  (:import-from :cl-cc/runtime #:rt-find-package #:rt-make-package #:rt-intern #:rt-export)
   (:import-from :cl-cc/expand/expander #:our-defmacro #:register-macro #:compiler-macroexpand-all)
   (:export #:loop #:make-iterator #:iterator-next #:with-iterator #:doiterator
            #:rt-use-package #:add-package-local-nickname
