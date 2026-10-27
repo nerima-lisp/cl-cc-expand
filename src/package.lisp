@@ -12,6 +12,7 @@
                 #:rt-find-package #:rt-make-package #:rt-intern #:rt-export)
   (:use :cl :cl-cc/bootstrap)
   (:shadow #:compiler-macro-function #:diagnostic)
+  (:shadowing-import-from :cl-cc/vm/clos #:class-slots)
   (:import-from :cl-cc/expand/expander #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
    #:*defstruct-slot-registry* #:*defstruct-type-registry* #:*defstruct-predicate-registry*
    #:*setf-compound-place-handlers* #:*declaim-inline-registry*

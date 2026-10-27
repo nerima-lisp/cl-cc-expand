@@ -93,3 +93,14 @@
   (let ((descriptor '(:kind :macro-expander :post-expand :some-unknown)))
     (assert-equal '(baz)
                   (cl-cc/expand/expander:%maybe-postprocess-expansion '(baz) descriptor nil))))
+(deftest class-slots-macro-registry-key-is-vm-clos-symbol
+  "The CLASS-SLOTS macro has exactly one key, the VM/CLOS symbol."
+  (let* ((table (cl-cc/expand/expander:macro-env-table
+                 cl-cc/expand/expander:*macro-environment*))
+         (keys (loop for key being the hash-keys of table
+                     when (and (symbolp key)
+                               (string= (symbol-name key) "CLASS-SLOTS"))
+                       collect key)))
+    (assert-equal 1 (length keys))
+    (assert-true (eq (first keys)
+                     (find-symbol "CLASS-SLOTS" :cl-cc/vm/clos)))))
