@@ -8,6 +8,8 @@
 ;;;; cl-cc/type is accessed qualified (cl-cc/type:...) so not in :use.
 
 (defpackage :cl-cc/expand
+  (:import-from :cl-cc/runtime
+                #:rt-find-package #:rt-make-package #:rt-intern #:rt-export)
   (:use :cl :cl-cc/bootstrap)
   (:shadow #:compiler-macro-function #:diagnostic)
   (:import-from :cl-cc/expand/expander #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*

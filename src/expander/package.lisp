@@ -1,4 +1,5 @@
 (defpackage :cl-cc/expand/expander
+            (:import-from :cl-cc/runtime #:rt-find-package)
             (:use :cl :cl-cc/bootstrap)
             (:shadow #:compiler-macro-function #:diagnostic)
             (:import-from :cl-cc/expand/binding
