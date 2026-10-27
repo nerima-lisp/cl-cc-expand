@@ -110,3 +110,22 @@
   (dolist (name '("CFFI:FOREIGN-FUNCALL" "CFFI::FOREIGN-FUNCALL"))
     (assert-false
      (cl-cc/expand/expander:lookup-macro (intern name :cl-cc/expand)))))
+
+(deftest with-region-expands-to-exported-runtime-api
+  "WITH-REGION expands to the exported runtime API and closes in UNWIND-PROTECT."
+  (let ((runtime-package (find-package "CL-CC/RUNTIME")))
+    (assert-true runtime-package)
+    (let* ((make-sym (find-symbol "RT-MAKE-REGION" runtime-package))
+           (close-sym (find-symbol "RT-CLOSE-REGION" runtime-package))
+           (result (our-macroexpand-1 '(with-region (region) (region-body))))
+           (binding (first (second result)))
+           (protected-form (third result)))
+      (assert-eq :external
+                 (nth-value 1 (find-symbol "RT-MAKE-REGION" runtime-package)))
+      (assert-eq :external
+                 (nth-value 1 (find-symbol "RT-CLOSE-REGION" runtime-package)))
+      (assert-eq 'let (car result))
+      (assert-eq make-sym (first (second binding)))
+      (assert-eq 'unwind-protect (car protected-form))
+      (assert-equal '(progn (region-body)) (second protected-form))
+      (assert-equal (list close-sym 'region) (third protected-form)))))
