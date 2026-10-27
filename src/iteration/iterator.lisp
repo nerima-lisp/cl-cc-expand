@@ -51,7 +51,7 @@
     (if (>= index limit)
         (values nil nil)
         (multiple-value-prog1
-            (values (cl-cc/vm::elt (iterator-sequence iterator) index) t)
+            (values (cl-cc/vm:vm-sequence-elt (iterator-sequence iterator) index) t)
           (setf (iterator-state iterator) (+ index 1))))))
 
 (defmethod make-iterator ((sequence list))
@@ -64,7 +64,7 @@
   (%make-iterator sequence 0 (length sequence) #'%iterator-next-string))
 
 (defmethod make-iterator ((sequence cl-cc/vm::sequence))
-  (%make-iterator sequence 0 (cl-cc/vm::length sequence)
+  (%make-iterator sequence 0 (cl-cc/vm:vm-sequence-length sequence)
                   #'%iterator-next-sequence-protocol))
 
 (defun iterator-next (iterator)

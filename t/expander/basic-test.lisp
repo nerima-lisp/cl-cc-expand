@@ -68,9 +68,12 @@ that would trip the expander during recursion."
 (deftest-each expander-make-hash-table-adjusts-test
   "make-hash-table rewrites explicit :test forms to the dedicated helper path."
   :cases (("function" '(make-hash-table :test #'equal))
-           ("quoted"   '(make-hash-table :test 'eql)))
+          ("quoted" '(make-hash-table :test 'eql)))
   (form)
-  (let ((result (assert-expansion-head form 'cl-cc/vm::%make-hash-table-with-test)))
+  (let ((result (cl-cc/expand:compiler-macroexpand-all form)))
+    (assert-equal '("CL-CC/VM" "%MAKE-HASH-TABLE-WITH-TEST")
+                  (list (package-name (symbol-package (car result)))
+                        (symbol-name (car result))))
     (assert-true result)))
 
 (deftest expander-format-literal-single-aesthetic-directive
