@@ -14,13 +14,24 @@
            (sort (loop for symbol being the external-symbols of facade
                        collect (symbol-name symbol))
                  #'string<)))
-    (assert-= 96 (length records))
+    (assert-= 97 (length records))
     (assert-equal expected-names actual-names)
     (dolist (record records)
-      (destructuring-bind (kind action facade-name feature-name home-name name)
+      (destructuring-bind (kind action facade-name feature-name home-name name
+                           &optional changelog-reference)
           record
         (assert-eq :symbol kind)
-        (assert-eq :keep action)
+        (assert-true (member action '(:keep :add)))
+        (when (eq action :add)
+          (assert-equal "CHANGELOG.md#expander-head-table-export"
+                        changelog-reference)
+          (with-open-file
+              (stream
+               (asdf:system-relative-pathname "cl-cc-expand" "CHANGELOG.md"))
+            (assert-true
+             (loop for line = (read-line stream nil nil)
+                   while line
+                   thereis (string= line "## Expander head table export")))))
         (multiple-value-bind (facade-symbol facade-status)
             (find-symbol name (string-upcase facade-name))
           (assert-eq :external facade-status)

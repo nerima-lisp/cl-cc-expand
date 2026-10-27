@@ -7,12 +7,14 @@ environment and `defmacro` machinery, `our-macroexpand-1`/`our-macroexpand`/
 macro expander (`defstruct`, `setf` places, typed lambda lists,
 `deftransform`), and the `LOOP`/`DO`/`CASE`/`TYPECASE` control-flow macros.
 The public expansion API is exported from the `cl-cc/expand` package.
-The package also exports nine names used by the monorepo's runtime
-integration: `rt-use-package`, `add-package-local-nickname`,
+The package also exports integration names used by the monorepo:
+`*expander-head-table*`, `rt-use-package`, `add-package-local-nickname`,
 `%record-declaim-inline-clause`, `%record-declaim-optimize-clause`,
 `%record-declaim-type-clause`, `%record-declaim-ftype-clause`,
 `%record-declaim-special-clause`, `*macroexpand-step-cache*`, and
 `*macroexpand-all-cache*`.
+The other names support monorepo package-use, declaration-capture, and
+macro-expansion-cache integration.
 
 ## Usage
 
@@ -22,6 +24,15 @@ integration: `rt-use-package`, `add-package-local-nickname`,
 (cl-cc/expand:our-macroexpand-1 '(when x (print x)))
 (cl-cc/expand:compiler-macroexpand-all '(dolist (x list) (print x)))
 ```
+
+## Integration hooks
+
+`*expander-head-table*` maps form-head symbols to expansion handlers.
+The compiler copies this table and binds the copy during compilation. Each
+handler receives the full form and returns the fully expanded form. Callers
+that need custom handlers can copy the table, add handlers, and bind the copy
+around `compiler-macroexpand-all`; registered handlers take precedence over
+the compiler-special-form fallback.
 
 ## Pin in a consuming flake
 

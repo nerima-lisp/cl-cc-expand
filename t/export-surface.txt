@@ -18,6 +18,7 @@
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*DEFSTRUCT-SLOT-REGISTRY*")
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*DEFSTRUCT-TYPE-REGISTRY*")
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*DEFTRANSFORM-TABLE*")
+ (:symbol :add "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*EXPANDER-HEAD-TABLE*" "CHANGELOG.md#expander-head-table-export")
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/binding" "cl-cc/expand/binding" "*FUNCTION-TYPE-REGISTRY*")
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*GLOBAL-PROCLAMATIONS*")
  (:symbol :keep "cl-cc/expand" "cl-cc/expand/expander" "cl-cc/expand/expander" "*JOIN-POINTS-ENABLED*")

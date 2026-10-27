@@ -53,8 +53,8 @@ jobs:
       # Creates the release as an empty draft. This workflow does not produce a
       # release body at all.
       #
-      # As of the 2026-08-01 revision the GitHub Release description is the only
-      # canonical changelog in this org; there is no CHANGELOG.md to read from.
+      # CHANGELOG.md records export-snapshot approvals; the GitHub Release body
+      # remains canonical for release notes.
       # See RELEASE_STANDARD.md. After this job goes green the maintainer fills
       # the body in and publishes:
       #
