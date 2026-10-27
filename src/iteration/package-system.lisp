@@ -5,7 +5,7 @@
 
 (defun rt-use-package (packages-to-use &optional package &key (errorp t))
   "Expansion-package bridge for runtime package use with optional non-signaling mode."
-  (cl-cc/runtime::rt-use-package packages-to-use package :errorp errorp))
+  (cl-cc/runtime:rt-use-package packages-to-use package :errorp errorp))
 
 (defun %host-package-designator (designator)
   (if (hash-table-p designator)

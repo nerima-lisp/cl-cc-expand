@@ -75,16 +75,16 @@
 (deftest define-method-combination-returns-quoted-name
   "DEFINE-METHOD-COMBINATION registers side effects, then returns (QUOTE name)."
   (let ((result (our-macroexpand-1
-                 '(cl-cc::define-method-combination append :identity-with-one-argument t))))
+                 '(cl-cc/expand/clos:define-method-combination append :identity-with-one-argument t))))
     (assert-eq 'progn (car result))
     (assert-equal ''append (car (last result)))))
 
 (deftest-each instance-init-macros-use-shared-helper
   "REINITIALIZE-INSTANCE and SHARED-INITIALIZE both delegate to %APPLY-INSTANCE-INITARGS."
   :cases (("reinitialize-instance"
-           '(cl-cc::reinitialize-instance inst :slot 1))
+           '(cl-cc/expand/clos:reinitialize-instance inst :slot 1))
           ("shared-initialize"
-           '(cl-cc::shared-initialize inst t :slot 1)))
+           '(cl-cc/expand/clos:shared-initialize inst t :slot 1)))
   (form)
   (let ((result (our-macroexpand-1 form)))
     (assert-eq 'let* (car result))
@@ -120,23 +120,23 @@ package would otherwise intern fresh uninterned lookup keys."
 
 (deftest generic-function-methods-expands-to-let*
   "GENERIC-FUNCTION-METHODS expands to a LET* binding the gf and method table."
-  (let ((result (our-macroexpand-1 '(cl-cc/vm::generic-function-methods gf))))
+  (let ((result (our-macroexpand-1 '(cl-cc/vm:generic-function-methods gf))))
     (assert-eq 'let* (car result))))
 
 (deftest generic-function-methods-calls-hash-table-values
   "GENERIC-FUNCTION-METHODS body calls HASH-TABLE-VALUES."
-  (let* ((result (our-macroexpand-1 '(cl-cc/vm::generic-function-methods gf)))
+  (let* ((result (our-macroexpand-1 '(cl-cc/vm:generic-function-methods gf)))
          (body   (cddr result)))
     (assert-true (some (lambda (f) (and (consp f) (eq (car f) 'when))) body))))
 
 (deftest generic-function-method-combination-expands-to-let
   "GENERIC-FUNCTION-METHOD-COMBINATION expands to a LET with an IF defaulting to 'standard."
-  (let ((result (our-macroexpand-1 '(cl-cc/vm::generic-function-method-combination gf))))
+  (let ((result (our-macroexpand-1 '(cl-cc/vm:generic-function-method-combination gf))))
     (assert-eq 'let (car result))))
 
 (deftest generic-function-method-combination-defaults-to-standard
   "GENERIC-FUNCTION-METHOD-COMBINATION IF branch returns 'STANDARD when no combination set."
-  (let* ((result (our-macroexpand-1 '(cl-cc/vm::generic-function-method-combination gf)))
+  (let* ((result (our-macroexpand-1 '(cl-cc/vm:generic-function-method-combination gf)))
          (if-form (caddr result))
          (else-branch (cadddr if-form)))
     (assert-equal ''standard else-branch)))

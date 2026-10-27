@@ -73,7 +73,7 @@
     };
 
     cl-cc-vm = {
-      url = "github:nerima-lisp/cl-cc-vm/462213fcf5e0e6cecc09992e8cb0b7ed48dbce2f";
+      url = "github:nerima-lisp/cl-cc-vm/ddc3e7440eec0927ffd0ec307aa23c5b66e2050d";
       flake = false;
     };
 
@@ -172,7 +172,10 @@
       # Required, and it must be a path literal rather than `self`: a
       # flake's `self` is string-like and `lib.fileset` refuses it.
       root = ./.;
-      sourceInclude = [ ./t/export-surface.txt ];
+      sourceInclude = [
+        ./t/export-surface.txt
+        ./CHANGELOG.md
+      ];
 
       meta = {
         description = "Macroexpansion subsystem (macro-env, defmacro, macroexpand, lambda-list, LOOP) for cl-cc, extracted from the monorepo";
@@ -353,7 +356,7 @@
             glossary = "docs/src/reference/glossary.md";
             glossaryHeadingPrefix = "## ";
             exportSurface = "t/export-surface.txt";
-            mode = "transition";
+            mode = "strict";
             legacyInternalRefs = "t/legacy-internal-refs.sexp";
             forbiddenNames = [
               "phases"

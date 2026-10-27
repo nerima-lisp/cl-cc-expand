@@ -88,7 +88,7 @@
           (eq (car (third form)) 'function)
           (symbolp (second (third form))))
      (compiler-macroexpand-all
-      `(,(find-symbol "%MAKE-HASH-TABLE-WITH-TEST" "CL-CC/VM")
+      `(,(find-symbol "%MAKE-HASH-TABLE-WITH-TEST" "CL-CC/VM/INTEROP")
          ',(second (third form)))))
     ((and (>= (length form) 3)
           (eq (second form) :test)
@@ -96,7 +96,7 @@
           (eq (car (third form)) 'quote)
           (symbolp (second (third form))))
      (compiler-macroexpand-all
-      `(,(find-symbol "%MAKE-HASH-TABLE-WITH-TEST" "CL-CC/VM")
+      `(,(find-symbol "%MAKE-HASH-TABLE-WITH-TEST" "CL-CC/VM/INTEROP")
          ',(second (third form)))))
     (t
      (cons 'make-hash-table (mapcar #'compiler-macroexpand-all (cdr form))))))

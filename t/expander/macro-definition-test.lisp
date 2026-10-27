@@ -61,7 +61,7 @@
   (let ((cl-cc/expand:*macro-eval-fn* #'eval)
         (expander (cl-cc/expand/expander:make-compiler-macro-expander '(x) '((+ x 1)))))
     (assert-equal 3
-                  (cl-cc/expand/expander:invoke-registered-expander expander '(foo 2) nil))))
+                  (cl-cc/expand/expander::invoke-registered-expander expander '(foo 2) nil))))
 
 (deftest invoke-registered-expander-ignores-descriptor-leading-declarations
   "Descriptor-backed macro expanders treat leading declarations as declarations, not calls."
@@ -71,7 +71,7 @@
                     :body ((declare (ignore x))
                            (quote ok)))))
     (assert-equal 'ok
-                  (cl-cc/expand/expander:invoke-registered-expander expander '(declared 1) nil))))
+                  (cl-cc/expand/expander::invoke-registered-expander expander '(declared 1) nil))))
 
 (deftest compiler-macro-function-accesses-registered-expander
   "compiler-macro-function reflects the compiler macro registry."

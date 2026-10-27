@@ -88,7 +88,6 @@
                      #:define-expander-for
                      #:register-expander-handler
                      #:*expander-head-table*
-                     #:invoke-registered-expander
                      #:%expander-form
                      #:expand-make-array-form
                      #:expand-setf-accessor

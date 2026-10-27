@@ -94,7 +94,7 @@ Dispatch order: (1) atoms — symbol macros expanded, others pass through;
           (member (car form) *compiler-local-function-names* :test #'eq))
      (cons (car form) (mapcar #'compiler-macroexpand-all (cdr form))))
     (t
-     (let ((handler (or (gethash (car form) *expander-head-table*) (and (symbolp (car form)) (let* ((pkg (find-package :cl-cc/expand)) (local (progn (when (cl-cc/vm::vm-package-locked-p pkg) (cl-cc/vm::check-package-lock pkg :intern)) (intern (symbol-name (car form)) pkg)))) (and local (gethash local *expander-head-table*))))))
+     (let ((handler (or (gethash (car form) *expander-head-table*) (and (symbolp (car form)) (let* ((pkg (find-package :cl-cc/expand)) (local (find-symbol (symbol-name (car form)) pkg))) (and local (gethash local *expander-head-table*))))))
            (compiler-macro-expansion nil))
        (cond
          (handler

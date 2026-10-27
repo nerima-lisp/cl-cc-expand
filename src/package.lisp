@@ -10,8 +10,7 @@
 (defpackage :cl-cc/expand
   (:use :cl :cl-cc/bootstrap)
   (:shadow #:compiler-macro-function #:diagnostic)
-  (:import-from :cl-cc/expand/expander
-   #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
+  (:import-from :cl-cc/expand/expander #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
    #:*defstruct-slot-registry* #:*defstruct-type-registry* #:*defstruct-predicate-registry*
    #:*setf-compound-place-handlers* #:*declaim-inline-registry*
    #:*declaim-optimize-registry* #:*global-proclamations*
@@ -35,7 +34,7 @@
    #:*variadic-fold-builtins-table* #:*variadic-fold-or-list-table*
    #:likely #:unlikely #:%record-declaim-inline-clause
    #:%record-declaim-optimize-clause #:%record-declaim-type-clause
-   #:%record-declaim-ftype-clause #:%record-declaim-special-clause)
+   #:%record-declaim-ftype-clause #:%record-declaim-special-clause #:*expander-head-table*)
   (:import-from :cl-cc/expand/binding
    #:parse-lambda-list #:destructure-lambda-list #:generate-lambda-bindings
    #:*function-type-registry* #:register-function-type #:lambda-list-has-typed-p
@@ -46,8 +45,7 @@
    #:loop #:make-iterator #:iterator-next #:doiterator #:with-iterator
    #:rt-use-package #:add-package-local-nickname)
   (:import-from :cl-cc/expand/structures #:copy-structure)
-  (:export
-   #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
+  (:export #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
    #:*defstruct-slot-registry* #:*defstruct-type-registry* #:*defstruct-predicate-registry*
    #:*setf-compound-place-handlers* #:*declaim-inline-registry*
    #:*declaim-optimize-registry* #:*global-proclamations*
@@ -77,4 +75,4 @@
    #:rt-use-package #:add-package-local-nickname
    #:%record-declaim-inline-clause #:%record-declaim-optimize-clause
    #:%record-declaim-type-clause #:%record-declaim-ftype-clause
-   #:%record-declaim-special-clause))
+   #:%record-declaim-special-clause #:*expander-head-table*))
