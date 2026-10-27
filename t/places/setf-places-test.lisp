@@ -1,6 +1,7 @@
 ;;;; tests/unit/expand/expander-setf-places-tests.lisp — Setf-place expander tests
 
 (in-package :cl-cc/expand/places/test)
+(defvar *readtable-case-test-state*)
 
 (defsuite expander-setf-places-suite :description "Setf-place expander unit tests"
   :parent cl-cc-unit-suite)
@@ -161,29 +162,29 @@ detection format can run the test-level 30s timeout."
                          (list 'setf
                                (list 'readtable-case (list place-op))
                                (list case-op))))
-                      (quoted-state (list 'quote state))
+                      (*readtable-case-test-state* state)
                       (replacement-var (gensym "READTABLE-REPLACEMENT-"))
                       (runtime-form
                         (list 'flet
                               (list
                                (list place-op nil
                                      (list 'incf
-                                           (list 'gethash :place-count quoted-state 0))
-                                     (list 'gethash :table quoted-state))
+                                           (list 'gethash :place-count '*readtable-case-test-state* 0))
+                                     (list 'gethash :table '*readtable-case-test-state*))
                                (list case-op nil
                                      (list 'incf
-                                           (list 'gethash :case-count quoted-state 0))
+                                           (list 'gethash :case-count '*readtable-case-test-state* 0))
                                      (list 'let
                                            (list
                                             (list replacement-var
                                                   (list 'gethash
                                                         :replacement-readtable
-                                                        quoted-state)))
+                                                        '*readtable-case-test-state*)))
                                            (list 'when replacement-var
                                                  (list 'setf
                                                        'cl-cc/vm/io:*readtable*
                                                        replacement-var))
-                                           (list 'gethash :new-case quoted-state))))
+                                           (list 'gethash :new-case '*readtable-case-test-state*))))
                               expanded)))
                  (values expanded (eval runtime-form))))))
     (let* ((state (make-hash-table :test #'eq))
