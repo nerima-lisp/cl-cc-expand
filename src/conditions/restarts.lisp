@@ -8,16 +8,8 @@
 ;; If a handler returns normally it "declines" and the next handler is tried.
 ;; Handlers can transfer control via invoke-restart, throw, or return-from.
 (defun %condition-handlers-symbol ()
-  "Return the symbol HANDLER-BIND and SIGNAL should name the handler list with.
-
-The variable is defvar\'d by the stdlib, whose source the guest reader reads into
-:CL-CC, and pre-seeded in *VM-INITIAL-GLOBALS* — while a bare
-*%CONDITION-HANDLERS* written in this file is CL-CC/EXPAND::*%CONDITION-HANDLERS*.
-Three different symbols, so HANDLER-BIND\'s PROGV wrote one binding and guest code
-read another: the list always looked empty and no handler ever ran, for SIGNAL as
-well as for ERROR. Emit the guest-visible symbol."
-  (or (find-symbol "*%CONDITION-HANDLERS*" :cl-cc)
-      '*%condition-handlers*))
+  "Return the conditions feature handler registry symbol."
+  (quote *%condition-handlers*))
 
 (register-macro 'handler-bind
   (lambda (form env)
