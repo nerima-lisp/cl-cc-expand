@@ -28,6 +28,15 @@
     (assert-eq symbol (find-symbol name expand-package))
     (assert-eq :internal (nth-value 1 (find-symbol name expand-package)))
     (assert-eq symbol (intern name expand-package))))
+(deftest active-restarts-symbol-is-exported-from-facade
+  (let* ((name "*%ACTIVE-RESTARTS*")
+         (conditions-package (find-package :cl-cc/expand/conditions))
+         (expand-package (find-package :cl-cc/expand))
+         (symbol (find-symbol name conditions-package)))
+    (assert-eq conditions-package (symbol-package symbol))
+    (assert-eq :external (nth-value 1 (find-symbol name conditions-package)))
+    (assert-eq symbol (find-symbol name expand-package))
+    (assert-eq :external (nth-value 1 (find-symbol name expand-package)))))
 (deftest handler-bind-and-signal-share-feature-registry
   (labels ((contains-symbol-p (tree symbol)
              (cond
