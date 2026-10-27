@@ -45,6 +45,7 @@
    #:loop #:make-iterator #:iterator-next #:doiterator #:with-iterator
    #:rt-use-package #:add-package-local-nickname)
   (:import-from :cl-cc/expand/structures #:copy-structure)
+  (:import-from :cl-cc/expand/conditions #:*%condition-handlers*)
   (:export #:*constant-table* #:*accessor-slot-map* #:*defstruct-read-only-accessor-map*
    #:*defstruct-slot-registry* #:*defstruct-type-registry* #:*defstruct-predicate-registry*
    #:*setf-compound-place-handlers* #:*declaim-inline-registry*

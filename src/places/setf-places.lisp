@@ -158,10 +158,22 @@
                   (and vm-package (find-symbol "READTABLE-CASE" vm-package))))
           :test #'eq))
  (lambda (place value)
-   (let ((setter (or (find-symbol "SET-READTABLE-CASE" :cl-cc)
-                     (intern "SET-READTABLE-CASE" :cl-cc))))
+   (let ((readtable-var (gensym "READTABLE-CASE-PLACE-"))
+         (case-var (gensym "READTABLE-CASE-VALUE-"))
+         (target-var (gensym "READTABLE-CASE-TARGET-")))
      (compiler-macroexpand-all
-      (list setter (second place) value)))))
+      (list 'let*
+            (list (list readtable-var (second place))
+                  (list case-var value)
+                  (list target-var
+                        (list 'if readtable-var readtable-var
+                              'cl-cc/vm/io:*readtable*)))
+            (list 'unless
+                  (list 'member case-var
+                        (list 'quote '(:upcase :downcase :preserve :invert)))
+                  (list 'error "Invalid readtable case"))
+            (list 'setf (list 'gethash :case target-var) case-var)
+            case-var)))))
 
 ;;; FR-428: (setf (macro-function name) fn) → host bridge
 (%register-setf-place-handler
