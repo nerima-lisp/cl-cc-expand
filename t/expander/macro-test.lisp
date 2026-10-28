@@ -48,6 +48,23 @@
   (if expected
       (assert-true  (cl-cc/expand/expander::%qq-head-p form name))
       (assert-false (cl-cc/expand/expander::%qq-head-p form name))))
+;;; ─── compiler-macroexpand-all quasiquote dispatch ───────────────────────
+
+(deftest compiler-macroexpand-all-expands-foreign-quasiquote
+  "A foreign QUASIQUOTE head expands templates containing bootstrap UNQUOTE."
+  (let* ((package (or (find-package "CL-CC/EXPAND/TEST-FOREIGN")
+                      (make-package "CL-CC/EXPAND/TEST-FOREIGN" :use nil)))
+         (quasiquote (intern "QUASIQUOTE" package))
+         (a (intern "A" package))
+         (x (intern "X" package))
+         (form (list quasiquote
+                     (list a (list (find-symbol "UNQUOTE" :cl-cc/bootstrap) x))))
+         (result (cl-cc/expand:compiler-macroexpand-all form)))
+    (assert-equal
+     (list (find-symbol "CONS" :cl)
+           (list (find-symbol "QUOTE" :cl) a)
+           (list (find-symbol "CONS" :cl) x nil))
+     result)))
 
 ;;; ─── %step-cache-and-return ──────────────────────────────────────────────
 
